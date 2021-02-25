@@ -1,5 +1,4 @@
 import { NotFound } from '@feathersjs/errors';
-import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import generateApp from '../../../src/app';
 import { Application } from '../../../src/declarations';

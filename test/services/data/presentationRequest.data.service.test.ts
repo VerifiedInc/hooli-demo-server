@@ -7,7 +7,7 @@ import { PresentationRequestEntity } from '../../../src/entities/PresentationReq
 import { resetDb } from '../../helpers/resetDb';
 import { dummyPresentationRequestEntityOptions } from '../../mocks';
 
-describe('VerifierDataService', () => {
+describe('PresentationRequestDataService', () => {
   describe('initializing the service', () => {
     it('registers with the app', async () => {
       const app = await generateApp();

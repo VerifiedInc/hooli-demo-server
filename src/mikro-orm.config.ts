@@ -7,6 +7,8 @@ import { BaseEntity } from './entities/BaseEntity';
 import { Session } from './entities/Session';
 import { VerifierEntity } from './entities/Verifier';
 import { PresentationRequestEntity } from './entities/PresentationRequest';
+import { PresentationEntity } from './entities/Presentation';
+import { NoPresentationEntity } from './entities/NoPresentation';
 
 const mikroOrmConfig: Options = {
   baseDir: process.cwd(),
@@ -20,7 +22,9 @@ const mikroOrmConfig: Options = {
     BaseEntity,
     Session,
     VerifierEntity,
-    PresentationRequestEntity
+    PresentationRequestEntity,
+    PresentationEntity,
+    NoPresentationEntity
   ],
   entitiesTs: ['src/entities'],
   metadataProvider: TsMorphMetadataProvider,

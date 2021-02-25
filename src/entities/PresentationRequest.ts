@@ -12,7 +12,7 @@ export interface PresentationRequestEntityOptions extends BaseEntityOptions {
   prUuid: string;
   prCreatedAt: Date;
   prUpdatedAt: Date;
-  prExpiresAt: Date;
+  prExpiresAt?: Date;
   prVerifier: string;
   prCredentialRequests: CredentialRequest[];
   prProof: Proof;
@@ -36,7 +36,7 @@ export class PresentationRequestEntity extends BaseEntity {
   prUpdatedAt: Date;
 
   @Property({ columnType: 'timestamptz(6)' })
-  prExpiresAt: Date;
+  prExpiresAt?: Date;
 
   @Property()
   prVerifier: string;
