@@ -1,6 +1,7 @@
 import { NullableId, Params } from '@feathersjs/feathers';
 import { PresentationRequestPostDto } from '@unumid/types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
+import { DemoPresentationRequestDto } from '@unumid/demo-types';
 
 import { Application } from '../../../declarations';
 import { PresentationRequestEntity, PresentationRequestEntityOptions } from '../../../entities/PresentationRequest';
@@ -8,13 +9,6 @@ import logger from '../../../logger';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
-
-export interface PresentationRequestResponseDto {
-  uuid: string;
-  createdAt: Date;
-  updatedAt: Date;
-  presentationRequest: PresentationRequestPostDto;
-}
 
 const makePresentationRequestEntityOptionsFromDto = (
   dto: PresentationRequestPostDto
@@ -54,9 +48,9 @@ const makePresentationRequestEntityOptionsFromDto = (
   };
 };
 
-const makePresentationRequestResponseDtoFromEntity = (
+const makeDemoPresentationRequestDtoFromEntity = (
   entity: PresentationRequestEntity
-): PresentationRequestResponseDto => {
+): DemoPresentationRequestDto => {
   const {
     uuid,
     createdAt,
@@ -111,7 +105,7 @@ export class PresentationRequestService {
     this.dataService = app.service('presentationRequestData');
   }
 
-  async create (data: PresentationRequestPostDto, params?: Params): Promise<PresentationRequestResponseDto> {
+  async create (data: PresentationRequestPostDto, params?: Params): Promise<DemoPresentationRequestDto> {
     let entity;
     try {
       entity = await this.dataService.create(makePresentationRequestEntityOptionsFromDto(data), params);
@@ -120,10 +114,10 @@ export class PresentationRequestService {
       throw e;
     }
 
-    return makePresentationRequestResponseDtoFromEntity(entity);
+    return makeDemoPresentationRequestDtoFromEntity(entity);
   }
 
-  async get (uuid: NullableId, params?: Params): Promise<PresentationRequestResponseDto> {
+  async get (uuid: NullableId, params?: Params): Promise<DemoPresentationRequestDto> {
     let entity;
     try {
       entity = await this.dataService.get(uuid, params);
@@ -132,6 +126,6 @@ export class PresentationRequestService {
       throw e;
     }
 
-    return makePresentationRequestResponseDtoFromEntity(entity);
+    return makeDemoPresentationRequestDtoFromEntity(entity);
   }
 }

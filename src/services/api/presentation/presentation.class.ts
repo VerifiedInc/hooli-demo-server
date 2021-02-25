@@ -1,5 +1,6 @@
 import { Params } from '@feathersjs/feathers';
 import { NoPresentation, Presentation } from '@unumid/types';
+import { DemoPresentationDto, DemoNoPresentationDto } from '@unumid/demo-types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
@@ -9,22 +10,6 @@ import logger from '../../../logger';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
-
-export interface PresentationResponseDto {
-  uuid: string;
-  createdAt: Date;
-  updatedAt: Date;
-  presentation: Presentation;
-  isVerified: boolean;
-}
-
-export interface NoPresentationResponseDto {
-  uuid: string;
-  createdAt: Date;
-  updatedAt: Date;
-  noPresentation: NoPresentation;
-  isVerified: boolean;
-}
 
 export interface PresentationWithVerification {
   presentation: Presentation;
@@ -82,9 +67,9 @@ const isPresentationWithVerification = (
   obj: PresentationWithVerification | NoPresentationWithVerification
 ): obj is PresentationWithVerification => !!(obj as PresentationWithVerification).presentation;
 
-const makePresentationResponseDtoFromEntity = (
+const makeDemoPresentationDtoFromEntity = (
   entity: PresentationEntity
-): PresentationResponseDto => {
+): DemoPresentationDto => {
   const {
     uuid,
     createdAt,
@@ -114,9 +99,9 @@ const makePresentationResponseDtoFromEntity = (
   };
 };
 
-const makeNoPresentationResponseDtoFromEntity = (
+const makeDemoNoPresentationDtoFromEntity = (
   entity: NoPresentationEntity
-): NoPresentationResponseDto => {
+): DemoNoPresentationDto => {
   const {
     uuid,
     createdAt,
@@ -181,12 +166,12 @@ export class PresentationService {
   async create (
     data: PresentationWithVerification | NoPresentationWithVerification,
     params?: Params
-  ): Promise<PresentationResponseDto | NoPresentationResponseDto> {
-    let response: PresentationResponseDto | NoPresentationResponseDto;
+  ): Promise<DemoPresentationDto | DemoNoPresentationDto> {
+    let response: DemoPresentationDto | DemoNoPresentationDto;
     if (isPresentationWithVerification(data)) {
       try {
         const entity = await this.createPresentationEntity(data, params);
-        response = makePresentationResponseDtoFromEntity(entity);
+        response = makeDemoPresentationDtoFromEntity(entity);
       } catch (e) {
         logger.error('PresentationService.create caught an error thrown by PresentationService.createPresentationEntity', e);
         throw e;
@@ -194,7 +179,7 @@ export class PresentationService {
     } else {
       try {
         const entity = await this.createNoPresentationEntity(data, params);
-        response = makeNoPresentationResponseDtoFromEntity(entity);
+        response = makeDemoNoPresentationDtoFromEntity(entity);
       } catch (e) {
         logger.error('PresentationService.create caught an error thrown by PresentationService.createNoPresentationEntity', e);
         throw e;

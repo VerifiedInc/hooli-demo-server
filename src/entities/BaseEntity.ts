@@ -1,5 +1,6 @@
 import { Property, PrimaryKey } from '@mikro-orm/core';
 import { v4 } from 'uuid';
+import { DemoBaseEntity } from '@unumid/demo-types';
 
 export interface BaseEntityOptions {
   uuid?: string;
@@ -7,7 +8,7 @@ export interface BaseEntityOptions {
   updatedAt?: Date;
 }
 
-export abstract class BaseEntity {
+export abstract class BaseEntity implements DemoBaseEntity {
   @PrimaryKey()
   uuid: string;
 

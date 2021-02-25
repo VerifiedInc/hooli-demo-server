@@ -1116,6 +1116,12 @@
     "@typescript-eslint/types" "4.15.0"
     eslint-visitor-keys "^2.0.0"
 
+"@unumid/demo-types@git+ssh://git@github.com/UnumID/demo-types.git#v0.0.1":
+  version "0.0.1"
+  resolved "git+ssh://git@github.com/UnumID/demo-types.git#0779d8cc2135cc5940a98ccc391653df8a9af8b0"
+  dependencies:
+    "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v0.0.3"
+
 "@unumid/server-sdk@git+ssh://git@github.com/UnumID/Server-SDK-Typescript.git#v0.1.2":
   version "0.1.0"
   resolved "git+ssh://git@github.com/UnumID/Server-SDK-Typescript.git#e2aa3cf964ab3d0698b4b44fc7e674ccc5cc48dd"
