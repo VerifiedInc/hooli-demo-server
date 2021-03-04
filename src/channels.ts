@@ -2,6 +2,13 @@ import '@feathersjs/transport-commons';
 import { HookContext } from '@feathersjs/feathers';
 import { Application } from './declarations';
 
+export const presentationPublisher = (app: Application) => async (data: any, hook: HookContext) => {
+  const prUuid = data.presentation?.presentationRequestUuid || data.noPresentation?.presentationRequestUuid;
+  const presentationRequest = await app.service('presentationRequestData').get(null, { where: { prUuid } });
+  if (presentationRequest) {
+    return app.channel(presentationRequest.prMetadata.sessionUuid);
+  }
+};
 export default function (app: Application): void {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
@@ -62,4 +69,6 @@ export default function (app: Application): void {
   //     app.channel(`emails/${data.recipientEmail}`)
   //   ];
   // });
+
+  app.service('presentation').publish(presentationPublisher(app));
 }

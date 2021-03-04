@@ -49,7 +49,7 @@ export const sendRequestHook: Hook<SendRequestHookData> = async (ctx) => {
     throw new GeneralError('Hook context has not been validated. Did you forget to run the validatePresentationRequestOptions hook before this one?');
   }
 
-  const { credentialRequests } = ctx.data;
+  const { credentialRequests, metadata } = ctx.data;
 
   const { uuid, verifierDid, authToken, signingPrivateKey } = await ctx.app.service('verifierData').getDefaultVerifierEntity();
 
@@ -61,7 +61,9 @@ export const sendRequestHook: Hook<SendRequestHookData> = async (ctx) => {
       verifierDid,
       credentialRequests,
       signingPrivateKey,
-      config.HOLDER_APP_UUID
+      config.HOLDER_APP_UUID,
+      undefined,
+      metadata
     );
   } catch (e) {
     logger.error('sendRequestHook caught an error thrown by the server sdk', e);

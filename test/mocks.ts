@@ -10,16 +10,13 @@ import { VerifierEntityOptions, VerifierEntity } from '../src/entities/Verifier'
 import { PresentationRequestEntity, PresentationRequestEntityOptions } from '../src/entities/PresentationRequest';
 import { Session } from '../src/entities/Session';
 import { PresentationEntityOptions, PresentationEntity } from '../src/entities/Presentation';
-
 import { NoPresentationEntity, NoPresentationEntityOptions } from '../src/entities/NoPresentation';
 import { VerifierRequestDto, VerifierResponseDto } from '../src/services/api/verifier/verifier.class';
-import { PresentationRequestResponseDto } from '../src/services/api/presentationRequest/presentationRequest.class';
 import {
-  NoPresentationResponseDto,
-  PresentationResponseDto,
   PresentationWithVerification,
   NoPresentationWithVerification
 } from '../src/services/api/presentation/presentation.class';
+import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types';
 
 export const dummyVerifierDid = `did:unum:${v4()}`;
 export const dummyIssuerDid = `did:unum:${v4()}`;
@@ -87,6 +84,8 @@ export const dummyPresentationRequestUuid = v4();
 export const dummyVerifierDidWithHash = `${dummyVerifierDid}#${v4()}`;
 export const dummyHolderAppUuid = v4();
 
+export const dummySession = new Session({});
+
 export const dummyPresentationRequestEntityOptions: PresentationRequestEntityOptions = {
   prUuid: dummyPresentationRequestUuid,
   prCreatedAt: now,
@@ -105,7 +104,7 @@ export const dummyPresentationRequestEntityOptions: PresentationRequestEntityOpt
     verificationMethod: dummyVerifierDidWithHash,
     proofPurpose: 'assertionMethod'
   },
-  prMetadata: {},
+  prMetadata: { sessionUuid: dummySession.uuid },
   prHolderAppUuid: dummyHolderAppUuid,
   prVerifierInfo: {
     name: dummyVerifierEntityOptions.verifierName,
@@ -142,7 +141,7 @@ export const dummyPresentationRequestPostDto: PresentationRequestPostDto = {
       verificationMethod: dummyVerifierDidWithHash,
       proofPurpose: 'assertionMethod'
     },
-    metadata: {},
+    metadata: { sessionUuid: dummySession.uuid },
     holderAppUuid: dummyHolderAppUuid
   },
   verifier: {
@@ -160,14 +159,12 @@ export const dummyPresentationRequestPostDto: PresentationRequestPostDto = {
   qrCode: 'data:image/png;base64,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'
 };
 
-export const dummyPresentationRequestResponseDto: PresentationRequestResponseDto = {
+export const dummyPresentationRequestResponseDto: DemoPresentationRequestDto = {
   presentationRequest: dummyPresentationRequestPostDto,
   uuid: dummyPresentationRequestEntity.uuid,
   createdAt: dummyPresentationRequestEntity.createdAt,
   updatedAt: dummyPresentationRequestEntity.updatedAt
 };
-
-export const dummySession = new Session({});
 
 const dummyCredential: Credential = {
   '@context': [
@@ -388,7 +385,7 @@ export const dummyPresentationEntityOptions: PresentationEntityOptions = {
 
 export const dummyPresentationEntity = new PresentationEntity(dummyPresentationEntityOptions);
 
-export const dummyPresentationResponseDto: PresentationResponseDto = {
+export const dummyPresentationResponseDto: DemoPresentationDto = {
   uuid: dummyPresentationEntity.uuid,
   createdAt: dummyPresentationEntity.createdAt,
   updatedAt: dummyPresentationEntity.updatedAt,
@@ -432,7 +429,7 @@ export const dummyNoPresentationEntityOptions: NoPresentationEntityOptions = {
 
 export const dummyNoPresentationEntity = new NoPresentationEntity(dummyNoPresentationEntityOptions);
 
-export const dummyNoPresentationResponseDto: NoPresentationResponseDto = {
+export const dummyNoPresentationResponseDto: DemoNoPresentationDto = {
   uuid: dummyNoPresentationEntity.uuid,
   createdAt: dummyNoPresentationEntity.createdAt,
   updatedAt: dummyNoPresentationEntity.updatedAt,

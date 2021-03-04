@@ -115,7 +115,7 @@ describe('presentationRequest service hooks', () => {
       }];
 
       const ctx = {
-        data: { credentialRequests },
+        data: { credentialRequests, metadata: dummyPresentationRequestPostDto.presentationRequest.metadata },
         params: { isValidated: true },
         app: { service: () => ({ getDefaultVerifierEntity: () => dummyVerifierEntity, patch: jest.fn() }) }
       } as unknown as HookContext;
@@ -132,7 +132,9 @@ describe('presentationRequest service hooks', () => {
         dummyVerifierEntity.verifierDid,
         credentialRequests,
         dummyVerifierEntity.signingPrivateKey,
-        config.HOLDER_APP_UUID
+        config.HOLDER_APP_UUID,
+        undefined,
+        dummyPresentationRequestPostDto.presentationRequest.metadata
       );
     });
 
