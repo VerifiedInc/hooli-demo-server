@@ -160,7 +160,7 @@ export const dummyPresentationRequestPostDto: PresentationRequestPostDto = {
 };
 
 export const dummyPresentationRequestResponseDto: DemoPresentationRequestDto = {
-  presentationRequest: dummyPresentationRequestPostDto,
+  presentationRequestPostDto: dummyPresentationRequestPostDto,
   uuid: dummyPresentationRequestEntity.uuid,
   createdAt: dummyPresentationRequestEntity.createdAt,
   updatedAt: dummyPresentationRequestEntity.updatedAt

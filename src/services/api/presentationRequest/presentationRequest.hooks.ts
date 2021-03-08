@@ -2,12 +2,12 @@ import { Hook } from '@feathersjs/feathers';
 import { BadRequest, GeneralError } from '@feathersjs/errors';
 import { sendRequest } from '@unumid/server-sdk';
 import { PresentationRequestPostDto } from '@unumid/types';
-import { DemoPresentationRequestOptions } from '@unumid/demo-types';
+import { DemoPresentationRequestCreateOptions } from '@unumid/demo-types';
 
 import { config } from '../../../config';
 import logger from '../../../logger';
 
-export const validatePresentationRequestOptions: Hook<DemoPresentationRequestOptions> = (ctx) => {
+export const validatePresentationRequestOptions: Hook<DemoPresentationRequestCreateOptions> = (ctx) => {
   const { data } = ctx;
 
   if (!data) {
@@ -35,13 +35,13 @@ export const validatePresentationRequestOptions: Hook<DemoPresentationRequestOpt
   ctx.params.isValidated = true;
 };
 
-type SendRequestHookData = DemoPresentationRequestOptions | PresentationRequestPostDto;
+type SendRequestHookData = DemoPresentationRequestCreateOptions | PresentationRequestPostDto;
 
-const isDemoPresentationRequestOptions = (obj: any): obj is DemoPresentationRequestOptions =>
+const isDemoPresentationRequestCreateOptions = (obj: any): obj is DemoPresentationRequestCreateOptions =>
   !!obj.credentialRequests;
 
 export const sendRequestHook: Hook<SendRequestHookData> = async (ctx) => {
-  if (!isDemoPresentationRequestOptions(ctx.data)) {
+  if (!isDemoPresentationRequestCreateOptions(ctx.data)) {
     throw new BadRequest();
   }
 
