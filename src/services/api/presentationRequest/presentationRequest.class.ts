@@ -74,7 +74,7 @@ const makeDemoPresentationRequestDtoFromEntity = (
     uuid,
     createdAt,
     updatedAt,
-    presentationRequest: {
+    presentationRequestPostDto: {
       presentationRequest: {
         uuid: prUuid,
         createdAt: prCreatedAt,
