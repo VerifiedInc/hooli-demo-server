@@ -1,4 +1,4 @@
-import { Entity, Property } from '@mikro-orm/core';
+import { Entity, Index, Property } from '@mikro-orm/core';
 import {
   CredentialRequest,
   Issuer,
@@ -27,6 +27,7 @@ export interface PresentationRequestEntityOptions extends BaseEntityOptions {
 @Entity({ tableName: 'PresentationRequest' })
 export class PresentationRequestEntity extends BaseEntity {
   @Property()
+  @Index()
   prUuid: string;
 
   @Property({ columnType: 'timestamptz(6)' })

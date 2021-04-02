@@ -108,7 +108,7 @@ export class PresentationService {
   ): Promise<VerificationResponse> {
     try {
       const presentationRequestService = this.app.service('presentationRequestData');
-      const presentationRequest: PresentationRequestEntity = await presentationRequestService.get(data.presentationRequestUuid);
+      const presentationRequest: PresentationRequestEntity = await presentationRequestService.findOne({ prUuid: data.presentationRequestUuid });
 
       if (!presentationRequest) {
         throw new NotFound('PresentationRequest not found.');
@@ -116,11 +116,6 @@ export class PresentationService {
 
       const verifierDataService = this.app.service('verifierData');
       const verifier = await verifierDataService.getDefaultVerifierEntity();
-
-      // TODO once added to the request body, check that the verifier did associated with the pr matched what is in the EncryptedPresentation request body
-      // if (verifier.verifier.did != data.verifierDid) {
-      //   throw new BadRequest('Verifier DID does not match the presentation request verifier.');
-      // }
 
       // Needed to roll over the old attribute value that wasn't storing the Bearer as part of the token. Ought to remove once the roll over is complete. Figured simple to enough to just handle in app code.
       const authToken = verifier.authToken.startsWith('Bearer ') ? verifier.authToken : `Bearer ${verifier.authToken}`;

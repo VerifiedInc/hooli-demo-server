@@ -49,7 +49,7 @@ export const mockCredentialStatus = {
 };
 
 export const mockDidDoc = {
-  headers: {}, // maybe something todo here.
+  headers: {},
   body: {
     '@context': [
       'https://www.w3.org/ns/did/v1'
