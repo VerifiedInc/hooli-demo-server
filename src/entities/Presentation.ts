@@ -5,7 +5,6 @@ import { BaseEntity, BaseEntityOptions } from './BaseEntity';
 
 export interface PresentationEntityOptions extends BaseEntityOptions {
   presentationContext: ['https://www.w3.org/2018/credentials/v1', ...string[]];
-  presentationUuid: string;
   presentationType: ['VerifiablePresentation', ...string[]];
   presentationVerifiableCredential: Credential[];
   presentationProof: Proof;
@@ -17,9 +16,6 @@ export interface PresentationEntityOptions extends BaseEntityOptions {
 export class PresentationEntity extends BaseEntity {
   @Property()
   presentationContext: ['https://www.w3.org/2018/credentials/v1', ...string[]];
-
-  @Property()
-  presentationUuid: string;
 
   @Property()
   presentationType: ['VerifiablePresentation', ...string[]];
@@ -41,7 +37,6 @@ export class PresentationEntity extends BaseEntity {
 
     const {
       presentationContext,
-      presentationUuid,
       presentationType,
       presentationVerifiableCredential,
       presentationProof,
@@ -50,7 +45,6 @@ export class PresentationEntity extends BaseEntity {
     } = options;
 
     this.presentationContext = presentationContext;
-    this.presentationUuid = presentationUuid;
     this.presentationType = presentationType;
     this.presentationVerifiableCredential = presentationVerifiableCredential;
     this.presentationProof = presentationProof;

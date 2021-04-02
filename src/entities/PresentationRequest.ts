@@ -39,7 +39,7 @@ export class PresentationRequestEntity extends BaseEntity {
   prExpiresAt?: Date;
 
   @Property()
-  prVerifier: string;
+  prVerifier: string; // verifier did
 
   @Property()
   prCredentialRequests: CredentialRequest[];

@@ -21,7 +21,6 @@ describe('PresentationEntity', () => {
 
     it('sets the presentation data from options', () => {
       expect(presentationEntity.presentationContext).toEqual(dummyPresentationEntityOptions.presentationContext);
-      expect(presentationEntity.presentationUuid).toEqual(dummyPresentationEntityOptions.presentationUuid);
       expect(presentationEntity.presentationType).toEqual(dummyPresentationEntityOptions.presentationType);
       expect(presentationEntity.presentationVerifiableCredential).toEqual(dummyPresentationEntityOptions.presentationVerifiableCredential);
       expect(presentationEntity.presentationProof).toEqual(dummyPresentationEntityOptions.presentationProof);

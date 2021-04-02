@@ -1,12 +1,16 @@
 import { Params } from '@feathersjs/feathers';
-import { NoPresentation, Presentation } from '@unumid/types';
-import { DemoPresentationDto, DemoNoPresentationDto } from '@unumid/demo-types';
+import { EncryptedPresentation, NoPresentation, Presentation, PresentationReceiptInfo } from '@unumid/types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
 import { NoPresentationEntity, NoPresentationEntityOptions } from '../../../entities/NoPresentation';
 import { PresentationEntity, PresentationEntityOptions } from '../../../entities/Presentation';
 import logger from '../../../logger';
+import { BadRequest, NotFound } from '@feathersjs/errors';
+import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
+import { CryptoError } from '@unumid/library-crypto';
+import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyEncryptedPresentation } from '@unumid/server-sdk';
+import { VerificationResponse } from '@unumid/demo-types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
@@ -26,16 +30,14 @@ const makePresentationEntityOptionsFromPresentation = (
 ): PresentationEntityOptions => {
   const {
     '@context': presentationContext,
-    uuid: presentationUuid,
     type: presentationType,
-    verifiableCredential: presentationVerifiableCredential,
+    verifiableCredentials: presentationVerifiableCredential,
     proof: presentationProof,
     presentationRequestUuid: presentationPresentationRequestUuid
   } = presentation;
 
   return {
     presentationContext,
-    presentationUuid,
     presentationType,
     presentationVerifiableCredential,
     presentationProof,
@@ -63,70 +65,6 @@ const makeNoPresentationEntityOptionsFromNoPresentation = (
   };
 };
 
-const isPresentationWithVerification = (
-  obj: PresentationWithVerification | NoPresentationWithVerification
-): obj is PresentationWithVerification => !!(obj as PresentationWithVerification).presentation;
-
-const makeDemoPresentationDtoFromEntity = (
-  entity: PresentationEntity
-): DemoPresentationDto => {
-  const {
-    uuid,
-    createdAt,
-    updatedAt,
-    presentationContext,
-    presentationUuid,
-    presentationType,
-    presentationVerifiableCredential,
-    presentationProof,
-    presentationPresentationRequestUuid,
-    isVerified
-  } = entity;
-
-  return {
-    uuid,
-    createdAt,
-    updatedAt,
-    presentation: {
-      '@context': presentationContext,
-      uuid: presentationUuid,
-      type: presentationType,
-      verifiableCredential: presentationVerifiableCredential,
-      proof: presentationProof,
-      presentationRequestUuid: presentationPresentationRequestUuid
-    },
-    isVerified
-  };
-};
-
-const makeDemoNoPresentationDtoFromEntity = (
-  entity: NoPresentationEntity
-): DemoNoPresentationDto => {
-  const {
-    uuid,
-    createdAt,
-    updatedAt,
-    npType,
-    npProof,
-    npHolder,
-    npPresentationRequestUuid,
-    isVerified
-  } = entity;
-
-  return {
-    uuid,
-    createdAt,
-    updatedAt,
-    noPresentation: {
-      type: npType,
-      proof: npProof,
-      holder: npHolder,
-      presentationRequestUuid: npPresentationRequestUuid
-    },
-    isVerified
-  };
-};
-
 export class PresentationService {
   app: Application;
   options: ServiceOptions;
@@ -140,8 +78,10 @@ export class PresentationService {
     this.noPresentationDataService = app.service('noPresentationData');
   }
 
-  async createPresentationEntity (presentation: PresentationWithVerification, params?: Params): Promise<PresentationEntity> {
-    const options = makePresentationEntityOptionsFromPresentation(presentation);
+  async createPresentationEntity (presentation: DecryptedPresentation, params?: Params): Promise<PresentationEntity> {
+    const decryptedPresentation: Presentation = presentation.presentation as Presentation;
+    const presentationWithVerification: PresentationWithVerification = { isVerified: presentation.isVerified, presentation: decryptedPresentation };
+    const options = makePresentationEntityOptionsFromPresentation(presentationWithVerification);
     try {
       return this.presentationDataService.create(options, params);
     } catch (e) {
@@ -150,11 +90,10 @@ export class PresentationService {
     }
   }
 
-  async createNoPresentationEntity (
-    noPresentation: NoPresentationWithVerification,
-    params?: Params
-  ): Promise<NoPresentationEntity> {
-    const options = makeNoPresentationEntityOptionsFromNoPresentation(noPresentation);
+  async createNoPresentationEntity (noPresentation: DecryptedPresentation, params?: Params): Promise<NoPresentationEntity> {
+    const decryptedPresentation: NoPresentation = noPresentation.presentation as NoPresentation;
+    const noPresentationWithVerification: NoPresentationWithVerification = { isVerified: noPresentation.isVerified, noPresentation: decryptedPresentation };
+    const options = makeNoPresentationEntityOptionsFromNoPresentation(noPresentationWithVerification);
     try {
       return this.noPresentationDataService.create(options, params);
     } catch (e) {
@@ -164,28 +103,81 @@ export class PresentationService {
   }
 
   async create (
-    data: PresentationWithVerification | NoPresentationWithVerification,
+    data: EncryptedPresentation,
     params?: Params
-  ): Promise<DemoPresentationDto | DemoNoPresentationDto> {
-    let response: DemoPresentationDto | DemoNoPresentationDto;
-    if (isPresentationWithVerification(data)) {
-      try {
-        const entity = await this.createPresentationEntity(data, params);
-        response = makeDemoPresentationDtoFromEntity(entity);
-      } catch (e) {
-        logger.error('PresentationService.create caught an error thrown by PresentationService.createPresentationEntity', e);
-        throw e;
-      }
-    } else {
-      try {
-        const entity = await this.createNoPresentationEntity(data, params);
-        response = makeDemoNoPresentationDtoFromEntity(entity);
-      } catch (e) {
-        logger.error('PresentationService.create caught an error thrown by PresentationService.createNoPresentationEntity', e);
-        throw e;
-      }
-    }
+  ): Promise<VerificationResponse> {
+    try {
+      const presentationRequestService = this.app.service('presentationRequestData');
+      const presentationRequest: PresentationRequestEntity = await presentationRequestService.get(data.presentationRequestUuid);
 
-    return response;
+      if (!presentationRequest) {
+        throw new NotFound('PresentationRequest not found.');
+      }
+
+      const verifierDataService = this.app.service('verifierData');
+      const verifier = await verifierDataService.getDefaultVerifierEntity();
+
+      // TODO once added to the request body, check that the verifier did associated with the pr matched what is in the EncryptedPresentation request body
+      // if (verifier.verifier.did != data.verifierDid) {
+      //   throw new BadRequest('Verifier DID does not match the presentation request verifier.');
+      // }
+
+      // Needed to roll over the old attribute value that wasn't storing the Bearer as part of the token. Ought to remove once the roll over is complete. Figured simple to enough to just handle in app code.
+      const authToken = verifier.authToken.startsWith('Bearer ') ? verifier.authToken : `Bearer ${verifier.authToken}`;
+
+      const response = await verifyEncryptedPresentation(authToken, data.encryptedPresentation, verifier.verifierDid, verifier.encryptionPrivateKey);
+      const result: DecryptedPresentation = response.body;
+
+      logger.info(`response from server sdk ${JSON.stringify(result)}`);
+
+      // need to update the verifier auth token
+      await verifierDataService.patch(verifier.uuid, { authToken: response.authToken });
+
+      // return early if the presentation could not be verified
+      if (!result.isVerified) {
+        logger.warn(`Presentation verification failed: ${result.message}`);
+        throw new BadRequest(`Verification failed: ${result.message ? result.message : ''}`);
+      }
+
+      if (result.type === 'VerifiablePresentation') {
+        try {
+          await this.createPresentationEntity(result, params);
+        } catch (e) {
+          logger.error('PresentationService.create caught an error thrown by PresentationService.createPresentationEntity', e);
+          throw e;
+        }
+      } else {
+        try {
+          await this.createNoPresentationEntity(result, params);
+        } catch (e) {
+          logger.error('PresentationService.create caught an error thrown by PresentationService.createNoPresentationEntity', e);
+          throw e;
+        }
+      }
+
+      // extract the relevant credential info to send back to UnumID SaaS for analytics.
+      const decryptedPresentation: Presentation = result.presentation as Presentation;
+      const credentialInfo: CredentialInfo = extractCredentialInfo((decryptedPresentation));
+
+      const presentationReceiptInfo: PresentationReceiptInfo = {
+        subjectDid: credentialInfo.subjectDid,
+        credentialTypes: credentialInfo.credentialTypes,
+        verifierDid: verifier.verifierDid,
+        holderApp: (response.body.presentation as NoPresentation).holder,
+        issuers: result.type === 'VerifiablePresentation' ? presentationRequest.prIssuerInfo : undefined
+      };
+
+      logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
+
+      return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestUuid, presentation: decryptedPresentation };
+    } catch (error) {
+      if (error instanceof CryptoError) {
+        logger.error('Crypto error handling encrypted presentation', error);
+      } else {
+        logger.error('Error handling encrypted presentation request to UnumID Saas.', error);
+      }
+
+      throw error;
+    }
   }
 }
