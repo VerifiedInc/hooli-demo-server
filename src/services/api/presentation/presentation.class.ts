@@ -31,7 +31,7 @@ const makePresentationEntityOptionsFromPresentation = (
   const {
     '@context': presentationContext,
     type: presentationType,
-    verifiableCredentials: presentationVerifiableCredential,
+    verifiableCredentials: presentationVerifiableCredentials,
     proof: presentationProof,
     presentationRequestUuid: presentationPresentationRequestUuid
   } = presentation;
@@ -39,7 +39,7 @@ const makePresentationEntityOptionsFromPresentation = (
   return {
     presentationContext,
     presentationType,
-    presentationVerifiableCredential,
+    presentationVerifiableCredentials,
     presentationProof,
     presentationPresentationRequestUuid,
     isVerified

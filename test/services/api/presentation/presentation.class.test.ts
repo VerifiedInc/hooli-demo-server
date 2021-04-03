@@ -66,7 +66,7 @@ describe('PresentationService', () => {
       const expectedPresentationEntityOptions: PresentationEntityOptions = {
         presentationContext: dummyPresentation['@context'],
         presentationType: dummyPresentation.type,
-        presentationVerifiableCredential: dummyPresentation.verifiableCredentials,
+        presentationVerifiableCredentials: dummyPresentation.verifiableCredentials,
         presentationProof: dummyPresentation.proof,
         presentationPresentationRequestUuid: dummyPresentation.presentationRequestUuid,
         isVerified: true
