@@ -9,7 +9,7 @@ import logger from '../../../logger';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
-import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyEncryptedPresentation } from '@unumid/server-sdk';
+import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 import { VerificationResponse } from '@unumid/demo-types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -108,7 +108,7 @@ export class PresentationService {
   ): Promise<VerificationResponse> {
     try {
       const presentationRequestService = this.app.service('presentationRequestData');
-      const presentationRequest: PresentationRequestEntity = await presentationRequestService.findOne({ prUuid: data.presentationRequestUuid });
+      const presentationRequest: PresentationRequestEntity = await presentationRequestService.findOne({ prUuid: data.presentationRequestInfo.presentationRequest.uuid });
 
       if (!presentationRequest) {
         throw new NotFound('PresentationRequest not found.');
@@ -120,7 +120,7 @@ export class PresentationService {
       // Needed to roll over the old attribute value that wasn't storing the Bearer as part of the token. Ought to remove once the roll over is complete. Figured simple to enough to just handle in app code.
       const authToken = verifier.authToken.startsWith('Bearer ') ? verifier.authToken : `Bearer ${verifier.authToken}`;
 
-      const response = await verifyEncryptedPresentation(authToken, data.encryptedPresentation, verifier.verifierDid, verifier.encryptionPrivateKey);
+      const response = await verifyPresentation(authToken, data.encryptedPresentation, verifier.verifierDid, verifier.encryptionPrivateKey, data.presentationRequestInfo);
       const result: DecryptedPresentation = response.body;
 
       logger.info(`response from server sdk ${JSON.stringify(result)}`);
@@ -164,7 +164,7 @@ export class PresentationService {
 
       logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
 
-      return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestUuid, presentation: decryptedPresentation };
+      return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid, presentation: decryptedPresentation };
     } catch (error) {
       if (error instanceof CryptoError) {
         logger.error('Crypto error handling encrypted presentation', error);

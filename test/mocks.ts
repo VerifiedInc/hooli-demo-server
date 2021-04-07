@@ -5,7 +5,8 @@ import {
   PresentationRequestPostDto,
   NoPresentation,
   UnsignedPresentation,
-  Proof
+  Proof,
+  PresentationRequestDto
 } from '@unumid/types';
 import { encrypt } from '@unumid/library-crypto';
 import { createProof } from '@unumid/library-issuer-verifier-utility';
@@ -288,7 +289,8 @@ export const dummyPresentationUnsigned: UnsignedPresentation = {
   type: [
     'VerifiablePresentation'
   ],
-  presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
+  // presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
+  presentationRequestUuid: dummyPresentationRequestUuid,
   verifiableCredentials: [
     {
       '@context': [
@@ -355,9 +357,11 @@ export const dummyPresentation: Presentation = {
   proof: presProof
 };
 
+export const dummyPresentationRequestInfo: PresentationRequestDto = dummyPresentationRequestPostDto;
+
 export const dummyEncryptedPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyPresentation, 'pem');
 export const dummyEncryptedPresentation = {
-  presentationRequestUuid: dummyPresentation.presentationRequestUuid,
+  presentationRequestInfo: dummyPresentationRequestInfo,
   encryptedPresentation: dummyEncryptedPresentationData
 };
 export const dummyPresentationWithVerification: PresentationWithVerification = {
@@ -498,7 +502,7 @@ export const dummyNoPresentationResponseDto: DemoNoPresentationDto = {
 
 export const dummyEncryptedNoPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyNoPresentation, 'pem');
 export const dummyEncryptedNoPresentation = {
-  presentationRequestUuid: dummyNoPresentation.presentationRequestUuid,
+  presentationRequestInfo: dummyPresentationRequestInfo,
   encryptedPresentation: dummyEncryptedNoPresentationData
 };
 

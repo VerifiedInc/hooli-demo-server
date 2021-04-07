@@ -8,8 +8,8 @@ export const validateData: Hook<EncryptedPresentation> = (ctx) => {
     throw new BadRequest('data is required.');
   }
 
-  if (!data.presentationRequestUuid) {
-    throw new BadRequest('presentationRequestUuid is required.');
+  if (!data.presentationRequestInfo) {
+    throw new BadRequest('presentationRequestInfo is required.');
   }
 
   if (!data.encryptedPresentation) {

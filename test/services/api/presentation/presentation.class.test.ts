@@ -14,7 +14,8 @@ import {
   dummyNoPresentation,
   mockNotVerifiedEncryptedPresentation,
   mockNotVerifiedEncryptedNoPresentation,
-  dummyAuthToken
+  dummyAuthToken,
+  dummyPresentationRequestInfo
 } from '../../../mocks';
 
 import { Presentation, PresentationReceiptInfo } from '@unumid/types';
@@ -54,7 +55,7 @@ describe('PresentationService', () => {
     });
 
     it('handles a valid encrypted Presentation', async () => {
-      jest.spyOn(serverSdk, 'verifyEncryptedPresentation').mockImplementation(async () => (mockVerifiedEncryptedPresentation));
+      jest.spyOn(serverSdk, 'verifyPresentation').mockImplementation(async () => (mockVerifiedEncryptedPresentation));
       const response = await service.create(dummyEncryptedPresentation);
 
       // Expecting that the PresentationData service is the only data service using .create in this code path.
@@ -97,7 +98,7 @@ describe('PresentationService', () => {
     });
 
     it('handles a valid encrypted NoPresentation', async () => {
-      jest.spyOn(serverSdk, 'verifyEncryptedPresentation').mockImplementation(async () => (mockVerifiedEncryptedNoPresentation));
+      jest.spyOn(serverSdk, 'verifyPresentation').mockImplementation(async () => (mockVerifiedEncryptedNoPresentation));
       const response = await service.create(dummyEncryptedNoPresentation);
 
       // Expecting that the PresentationData service is the only data service using .create in this code path.
@@ -130,7 +131,8 @@ describe('PresentationService', () => {
         isVerified: true,
         type: 'NoPresentation',
         presentationReceiptInfo: expectedPresentationReceiptInfo,
-        presentationRequestUuid: dummyNoPresentation.presentationRequestUuid,
+        // presentationRequestUuid: dummyNoPresentation.presentationRequestUuid,
+        presentationRequestUuid: dummyPresentationRequestInfo.presentationRequest.uuid,
         presentation: dummyNoPresentation
       };
 
@@ -139,7 +141,7 @@ describe('PresentationService', () => {
     });
 
     it('handles an invalid encrypted Presentation', async () => {
-      jest.spyOn(serverSdk, 'verifyEncryptedPresentation').mockImplementation(async () => (mockNotVerifiedEncryptedPresentation));
+      jest.spyOn(serverSdk, 'verifyPresentation').mockImplementation(async () => (mockNotVerifiedEncryptedPresentation));
       jest.spyOn(logger, 'warn');
       try {
         const response = await service.create(dummyEncryptedPresentation);
@@ -152,7 +154,7 @@ describe('PresentationService', () => {
     });
 
     it('handles an invalid encrypted NoPresentation', async () => {
-      jest.spyOn(serverSdk, 'verifyEncryptedPresentation').mockImplementation(async () => (mockNotVerifiedEncryptedNoPresentation));
+      jest.spyOn(serverSdk, 'verifyPresentation').mockImplementation(async () => (mockNotVerifiedEncryptedNoPresentation));
       jest.spyOn(logger, 'warn');
       try {
         const response = await service.create(dummyEncryptedNoPresentation);
@@ -167,7 +169,7 @@ describe('PresentationService', () => {
     it('logs and re-throws errors thrown by the server sdk', async () => {
       jest.spyOn(logger, 'error');
       const err = new Error('server sdk error');
-      jest.spyOn(serverSdk, 'verifyEncryptedPresentation').mockRejectedValue(async () => (err));
+      jest.spyOn(serverSdk, 'verifyPresentation').mockRejectedValue(async () => (err));
 
       try {
         const response = await service.create(dummyEncryptedNoPresentation);
@@ -180,7 +182,7 @@ describe('PresentationService', () => {
     it('logs and re-throws CryptoErrors thrown by the server sdk', async () => {
       jest.spyOn(logger, 'error');
       const err = new CryptoError('server sdk error');
-      jest.spyOn(serverSdk, 'verifyEncryptedPresentation').mockRejectedValue(async () => (err));
+      jest.spyOn(serverSdk, 'verifyPresentation').mockRejectedValue(async () => (err));
 
       try {
         const response = await service.create(dummyEncryptedNoPresentation);

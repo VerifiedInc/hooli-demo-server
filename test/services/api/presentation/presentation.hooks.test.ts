@@ -40,9 +40,9 @@ describe('presentation service hooks', () => {
     });
 
     describe('validating an encrypted presentation', () => {
-      it('throws a BadRequest if presentationRequestUuid is missing', () => {
+      it('throws a BadRequest if presentationRequestInfo is missing', () => {
         const ctx = {
-          data: omit(dummyEncryptedPresentation, 'presentationRequestUuid'),
+          data: omit(dummyEncryptedPresentation, 'presentationRequestInfo'),
           params: {}
         } as HookContext;
 
@@ -50,7 +50,7 @@ describe('presentation service hooks', () => {
           validateData(ctx);
           fail();
         } catch (e) {
-          expect(e).toEqual(new BadRequest('presentationRequestUuid is required.'));
+          expect(e).toEqual(new BadRequest('presentationRequestInfo is required.'));
         }
       });
 
