@@ -83,7 +83,7 @@ const makeVerifierResponseDtoFromEntity = (entity: VerifierEntity): VerifierResp
     authToken,
     encryptionPrivateKey,
     signingPrivateKey,
-    verifier: {
+    verifier: { // attributes from UnumID SaaS
       did: verifierDid,
       uuid: verifierUuid,
       createdAt: verifierCreatedAt.toISOString(),
@@ -123,6 +123,18 @@ export class VerifierService {
     let verifierEntity: VerifierEntity;
     try {
       verifierEntity = await this.dataService.get(uuid, params);
+    } catch (e) {
+      logger.error('VerifierService.get caught an error thrown by VerifierDataService.get', e);
+      throw e;
+    }
+
+    return makeVerifierResponseDtoFromEntity(verifierEntity);
+  }
+
+  async patch (uuid: NullableId, params: Partial<VerifierEntity>): Promise<VerifierResponseDto> {
+    let verifierEntity: VerifierEntity;
+    try {
+      verifierEntity = await this.dataService.patch(uuid, params);
     } catch (e) {
       logger.error('VerifierService.get caught an error thrown by VerifierDataService.get', e);
       throw e;

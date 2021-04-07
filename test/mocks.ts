@@ -3,8 +3,13 @@ import {
   Credential,
   Presentation,
   PresentationRequestPostDto,
-  NoPresentation
+  NoPresentation,
+  UnsignedPresentation,
+  Proof,
+  PresentationRequestDto
 } from '@unumid/types';
+import { encrypt } from '@unumid/library-crypto';
+import { createProof } from '@unumid/library-issuer-verifier-utility';
 
 import { VerifierEntityOptions, VerifierEntity } from '../src/entities/Verifier';
 import { PresentationRequestEntity, PresentationRequestEntityOptions } from '../src/entities/PresentationRequest';
@@ -17,8 +22,10 @@ import {
   NoPresentationWithVerification
 } from '../src/services/api/presentation/presentation.class';
 import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types';
+import { DecryptedPresentation, UnumDto } from '@unumid/server-sdk';
 
-export const dummyVerifierDid = `did:unum:${v4()}`;
+// export const dummyVerifierDid = `did:unum:${v4()}`;
+export const dummyVerifierDid = 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8';
 export const dummyIssuerDid = `did:unum:${v4()}`;
 export const now = new Date();
 const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000);
@@ -26,11 +33,62 @@ const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000);
 const verifierUuid = v4();
 export const customerUuid = v4();
 
+export const rsaPublicKeyPem =
+'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtaMEiAnqi7t+fQX1WjYY\ngcjvAL6ThYaUwJmGqXPS8PwbWr8aIDgV/BrxwmK8sZphHtzdN7TTcIRHDiwGJ2A6\n0SPrfr6WoVywoKLxOV+qw+4P/n6Ek3QEBTKCe6Mk1aUaMSOymsD/5Cu6XWHWKWed\nSI8eaU0/hMNa7Bs5bABO7VMBGYdlFzfdqjNClJY8XwkclHit1Axr4P6qkaOeNZcn\nFy9ek95Y8w8Z/44Qm3V7GDofmqhzDqlxkFzcNeyNrfpBBQPjSURMcd9lekc0VM4S\nn335EnqgdVhHSiczpxh4Vr7OI8mkTw00S8fgw+g2pgJBBzJhdGY7X9mOEFOp+wZT\nuwIDAQAB\n-----END PUBLIC KEY-----\n';
+export const rsaPrivateKeyPem =
+'-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC1owSICeqLu359\nBfVaNhiByO8AvpOFhpTAmYapc9Lw/BtavxogOBX8GvHCYryxmmEe3N03tNNwhEcO\nLAYnYDrRI+t+vpahXLCgovE5X6rD7g/+foSTdAQFMoJ7oyTVpRoxI7KawP/kK7pd\nYdYpZ51Ijx5pTT+Ew1rsGzlsAE7tUwEZh2UXN92qM0KUljxfCRyUeK3UDGvg/qqR\no541lycXL16T3ljzDxn/jhCbdXsYOh+aqHMOqXGQXNw17I2t+kEFA+NJRExx32V6\nRzRUzhKfffkSeqB1WEdKJzOnGHhWvs4jyaRPDTRLx+DD6DamAkEHMmF0Zjtf2Y4Q\nU6n7BlO7AgMBAAECggEALmO+Koht0NZIDeJRsYKTa8JH2GbUAoxGvZH4ZJriSw34\nZorcP1JTuxmemUjibHHDUECUdz/FqLz/8MypnbDkFLoZ0TsX+YpUyhITjdWzJWtN\nxm/FqGs/A5zM2ormQ3JxaA939DJKqJnKdUMhkV2XPArhd391M5E5TYf+eGjzv4S/\nGwmo4xtrqCYbXEPlIv5dI9Rj2RF7rd5iSHDYdavKv1MJi55zuyO+wt2GqWPLGgBC\nyyVVEd6Irm/AiFsYWjWHm44ChKarUi1hJj1qyTZV90/xuhYwam+A40rSqjlbRqPf\neFH94IZKtKQlDkQH61vK/B1Pmud0AmWRHiSmPB58oQKBgQDnpCHx2nPg2LgSN5vL\nTp+9a4DO5uenYbgaK3WQMhc+4kv/LME297M1GKVqcpLGK9cfQ4sfn5tlMRRUta51\nfLGNI4NwqdhfGZE86EkUIAWcTbBOvsb5z3RbEDpajUZAYmBL26OFZo1E3YfMBsXl\n1dZvbuc20wFSLKMSe6siPBvAqQKBgQDIvL+4PA6spqEoUAUYhpW5TZcvBE9OOBgJ\nJvcx2y3sA14k2GKcSIM7tFc0ibFrkuxlM5lFAgqdKoKx5VCHZPs5K+Z2Ebb+P2z4\n05j7jQPwnrx9LVBSD0Vb/JFjKfjMjm3FbAHuS1SaMfoRNvv8FzvnQN2R9QIvnk/J\njoNzVMLbwwKBgFEJI3LnmGhNiL+ewpryS4HJrQs0zk/JKM3G7F7gly9BnZKMhp+D\nMideEuhVYrF/PsfKKk6K2KMi81jbIkgpsjeM9/ue/3ntiNjE7mPi+/N9XjN+HD/i\nanM9Dx0ElVIK2GNRWDhf8wXndg1TRUItd9IN+0c7tBeaVAYwS2MzogXZAoGAH0N+\nXJRF+M/O47dqw8IaSYzzEeiK7XTBEZPXBhXL1ilEHVryKMMGZWMV/eHAFy//z1c0\n9NF3k7jOOCSt4RhyJBpZP2RM6tY4A5z5A5yX0371fk1zaARm2gfBIP+ldz5rjEbh\nGhrzZzyHZOz6W+3Gb6Ljn1rYZ1AxvwOKJ4k4+/8CgYAjVjEkqZMchTC4mB3uHoOF\nB6VOHeoGxg+kJlL54xk7SzXTfHZ9oBofe5drKkOSOEgbrM/Ts+woZAN8LdIBZJ+t\nrUyVxZvdzD1dddOXTqM6mLkJMLOsM869TKQAdAn50o8fvZ5N/fQnr+9HzA3zqpPl\n8882IUPXaf9nOIA0rpUPWg==\n-----END PRIVATE KEY-----\n';
+export const eccPublicKeyPem =
+'-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEP2aZD4I5ojwnIBsInS6aTCMcLpF7\npzGh1C5bePWDJ5HB/c9CammU0IF999Q6Iy+wOdBHnM2fYgKqOOvHa9wxNQ==\n-----END PUBLIC KEY-----\n';
+export const eccPrivateKeyPem =
+'-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg0TIRCXT1FF+w76Zm\n4z95ieOIhKOLM3a6MMjprvx7GryhRANCAAQ/ZpkPgjmiPCcgGwidLppMIxwukXun\nMaHULlt49YMnkcH9z0JqaZTQgX331DojL7A50EeczZ9iAqo468dr3DE1\n-----END PRIVATE KEY-----\n';
+
+export const dummyAuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidmVyaWZpZXIiLCJ1dWlkIjoiZTMzNjQ0NTMtZmY1OS00NGI5LWJiOWEtY2I0NGQzODMzMDQ3IiwiZGlkIjoiZGlkOnVudW06NjI2MWFlYmUtZWI2NC00NzUwLTg0NTEtYjQwZTg1ZGU4ZWViIiwiZXhwIjoxNjEzNjkyMTA4LjgxNywiaWF0IjoxNjEzNjkzMTU2fQ.r5ucRkp7gZtWmko8D-7EzhnOhPNNlv_5-RdaVMRmnl0';
+
+export const mockCredentialStatus = {
+  authToken: dummyAuthToken,
+  body: true
+};
+
+export const mockDidDoc = {
+  headers: {},
+  body: {
+    '@context': [
+      'https://www.w3.org/ns/did/v1'
+    ],
+    id: 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8',
+    created: '2020-09-03T18:34:38.444Z',
+    updated: '2020-09-03T18:34:38.444Z',
+    publicKey: [
+      {
+        id: '1e126861-a51b-491f-9206-e2c6b8639fd1',
+        type: 'secp256r1',
+        status: 'valid',
+        encoding: 'pem',
+        publicKey: eccPublicKeyPem
+      },
+      {
+        id: '2386ef83-139c-439f-a0ce-f34dd4b5db0c',
+        type: 'RSA',
+        status: 'valid',
+        encoding: 'pem',
+        publicKey: rsaPublicKeyPem
+      }
+    ],
+    service: [
+      {
+        id: 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8#vcr',
+        type: 'CredentialRepositoryService',
+        serviceEndpoint: 'https://api.dev-unumid.org/credentialRepository/did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8'
+      }
+    ]
+  }
+};
+
 export const dummyVerifierEntityOptions: VerifierEntityOptions = {
   apiKey: 'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
-  authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidmVyaWZpZXIiLCJ1dWlkIjoiZTMzNjQ0NTMtZmY1OS00NGI5LWJiOWEtY2I0NGQzODMzMDQ3IiwiZGlkIjoiZGlkOnVudW06NjI2MWFlYmUtZWI2NC00NzUwLTg0NTEtYjQwZTg1ZGU4ZWViIiwiZXhwIjoxNjEzNjkyMTA4LjgxNywiaWF0IjoxNjEzNjkzMTU2fQ.r5ucRkp7gZtWmko8D-7EzhnOhPNNlv_5-RdaVMRmnl0',
-  encryptionPrivateKey: '-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC5vL6S1xkvQukL\nMvi9JoM1yqzp+sdyYVPzF1pTs/cJ+f2HDYTkfb5Jzlc5DElR5cYmPJYyDft0bD68\npZstjLkRZVEawgSvNglGiiN/N3NihvcvDg7kjfhcuOXSY1s+Y/sHl7EB50nBNrkW\nSzhreKrBsgG7DtgKZNuA/rleWK4JE8veUDYz9CLexkUw3p3JWhKx50lYxHV/iZto\n+iP4VfWyJ4YHW1pLFaG3MYnjvM46XBqCUCW4YOX0PHerNYukXx0EvndoxvFgXQwJ\nck/xlpCoaCxZFVv5HvkHSe6HstsQzImh2j1TTXxNCnGd1xaXeQIoUqQk/jW6DFEU\nEqcNy1n9AgMBAAECggEBAJwKsQTGh1cIXKdW/FhVCbjgfGLamENE93VsMivOLwaH\nqvKSbgpUhdCV9Pttkg+m/dDT589HpfDKm+57JyKebkDqILhdNfhJaoODvIy9dkfZ\nYcN7iRGFIJotkI8vf9Grx5M6YrBZssILinXrXgwURUkTlpajwucAktUNq4hS8muW\ncmNGVIlos4kJ36TL+wsyxS0MrdvghreMykG9Pbbhg/JL3civ43Dssl9YWomhZge2\n46cfiB4mf0eMyIEhNHCwqecSqz3IyZLoyifp1BO+SgPRs5MO7xt3gp/u1aQAQtg5\nZgLPhOWQJ0GLkbXG/cusSnPxV9tTF6WP9AYdEoK1RCECgYEA41Rci/9BcrryY6bx\nUOWwy/GOlWWAKobfJZMUyjP7kBUKrTHAJ6nL0U6ifPsrTQADCoYSWRG1pmlhsVXb\nnHM+ExXCb5Gb8vXbZK9GSoqDrB/Lu3TFWSOdz4yhVraKfsohNAeiF0OnC1wCuPTB\nuNSY43BGAz/lHiTbvn7TK+41JlkCgYEA0SmFc99RKyGab+x4r38M4dHQyGfd2Kzy\nCVcdNVUe5Idnnu5OZCFN0ORMeoWZIuR8IeGj8vcCq/48215P9onoQEFrIo805Bw5\njX9XMToJVsg1hWznpqZm0mU/900VMOhJaeIAWvfTWiMIRgAy702hvt8zFf7duNhR\nOBQ8eqU/pEUCgYArHqJbT7SLXZiCfHUDgj3xwUTpY5JW/rQu/WIRJKEP6F3ZEjm/\njD6D2iWKDV5eQaVSBrJOQMSy5wRHzeBVIarhldwGq5joEehmhbSQiQuGx5UuXmzc\nhpv1dVhZCVDl0dNQei4tuYBi8DX3/T0NoQ3K/k3ZafI8sIMZ9BZ8G7frKQKBgQCM\n1chmHRgqUpYKhs88W+/wnbZXOpjGLK1MXLvuDUKf3gyHly5xfXtIDHDyjsJuHCr5\nJVWfY3MJHEcd7oMpHfKkUWgx/PtAHUEjZXrwSoO/S0++Z3YTYDgbstE/U0fRhpbo\nFKTom7ZUGwKXH8ssFrmyK9faF6JztDP77qRKcLpJgQKBgQCjBebFOW0TAQs8vhjS\nEsoDJ5J1Y7hTseFJ2sTLWfexHo3wXPC94cKsb65OFPoIaPFs5qOdf590unn7RpZP\nIl90M1J7jM+8xvUV3J2rCI3qejQZ0PF8uPvGs+NrSMc/eSicaHh5su+V7o4BGe3t\n0hdCNUBBY/Z2pJ5c9uijTEDL0A==\n-----END PRIVATE KEY-----\n',
-  signingPrivateKey: '-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgIO4b3u0fjjEMdDlT\nzxVOY0i7Hvf6g0JDByzkn0J/YuehRANCAASEbG0IWej3rPbxRmHDLWj8CE/ZzS0Y\n7BzuhVemjSBO1Iu1dZhY1+4KRak+rYlEb2rE5w91P69uTHl+YPAw5Ofa\n-----END PRIVATE KEY-----\n',
+  authToken: dummyAuthToken,
+  encryptionPrivateKey: rsaPrivateKeyPem,
+  signingPrivateKey: eccPrivateKeyPem,
   verifierDid: dummyVerifierDid,
   verifierUuid: verifierUuid,
   verifierCreatedAt: now,
@@ -43,9 +101,9 @@ export const dummyVerifierEntityOptions: VerifierEntityOptions = {
 
 export const dummyVerifierRequestDto: VerifierRequestDto = {
   apiKey: 'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
-  authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidmVyaWZpZXIiLCJ1dWlkIjoiZTMzNjQ0NTMtZmY1OS00NGI5LWJiOWEtY2I0NGQzODMzMDQ3IiwiZGlkIjoiZGlkOnVudW06NjI2MWFlYmUtZWI2NC00NzUwLTg0NTEtYjQwZTg1ZGU4ZWViIiwiZXhwIjoxNjEzNjkyMTA4LjgxNywiaWF0IjoxNjEzNjkzMTU2fQ.r5ucRkp7gZtWmko8D-7EzhnOhPNNlv_5-RdaVMRmnl0',
-  encryptionPrivateKey: '-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC5vL6S1xkvQukL\nMvi9JoM1yqzp+sdyYVPzF1pTs/cJ+f2HDYTkfb5Jzlc5DElR5cYmPJYyDft0bD68\npZstjLkRZVEawgSvNglGiiN/N3NihvcvDg7kjfhcuOXSY1s+Y/sHl7EB50nBNrkW\nSzhreKrBsgG7DtgKZNuA/rleWK4JE8veUDYz9CLexkUw3p3JWhKx50lYxHV/iZto\n+iP4VfWyJ4YHW1pLFaG3MYnjvM46XBqCUCW4YOX0PHerNYukXx0EvndoxvFgXQwJ\nck/xlpCoaCxZFVv5HvkHSe6HstsQzImh2j1TTXxNCnGd1xaXeQIoUqQk/jW6DFEU\nEqcNy1n9AgMBAAECggEBAJwKsQTGh1cIXKdW/FhVCbjgfGLamENE93VsMivOLwaH\nqvKSbgpUhdCV9Pttkg+m/dDT589HpfDKm+57JyKebkDqILhdNfhJaoODvIy9dkfZ\nYcN7iRGFIJotkI8vf9Grx5M6YrBZssILinXrXgwURUkTlpajwucAktUNq4hS8muW\ncmNGVIlos4kJ36TL+wsyxS0MrdvghreMykG9Pbbhg/JL3civ43Dssl9YWomhZge2\n46cfiB4mf0eMyIEhNHCwqecSqz3IyZLoyifp1BO+SgPRs5MO7xt3gp/u1aQAQtg5\nZgLPhOWQJ0GLkbXG/cusSnPxV9tTF6WP9AYdEoK1RCECgYEA41Rci/9BcrryY6bx\nUOWwy/GOlWWAKobfJZMUyjP7kBUKrTHAJ6nL0U6ifPsrTQADCoYSWRG1pmlhsVXb\nnHM+ExXCb5Gb8vXbZK9GSoqDrB/Lu3TFWSOdz4yhVraKfsohNAeiF0OnC1wCuPTB\nuNSY43BGAz/lHiTbvn7TK+41JlkCgYEA0SmFc99RKyGab+x4r38M4dHQyGfd2Kzy\nCVcdNVUe5Idnnu5OZCFN0ORMeoWZIuR8IeGj8vcCq/48215P9onoQEFrIo805Bw5\njX9XMToJVsg1hWznpqZm0mU/900VMOhJaeIAWvfTWiMIRgAy702hvt8zFf7duNhR\nOBQ8eqU/pEUCgYArHqJbT7SLXZiCfHUDgj3xwUTpY5JW/rQu/WIRJKEP6F3ZEjm/\njD6D2iWKDV5eQaVSBrJOQMSy5wRHzeBVIarhldwGq5joEehmhbSQiQuGx5UuXmzc\nhpv1dVhZCVDl0dNQei4tuYBi8DX3/T0NoQ3K/k3ZafI8sIMZ9BZ8G7frKQKBgQCM\n1chmHRgqUpYKhs88W+/wnbZXOpjGLK1MXLvuDUKf3gyHly5xfXtIDHDyjsJuHCr5\nJVWfY3MJHEcd7oMpHfKkUWgx/PtAHUEjZXrwSoO/S0++Z3YTYDgbstE/U0fRhpbo\nFKTom7ZUGwKXH8ssFrmyK9faF6JztDP77qRKcLpJgQKBgQCjBebFOW0TAQs8vhjS\nEsoDJ5J1Y7hTseFJ2sTLWfexHo3wXPC94cKsb65OFPoIaPFs5qOdf590unn7RpZP\nIl90M1J7jM+8xvUV3J2rCI3qejQZ0PF8uPvGs+NrSMc/eSicaHh5su+V7o4BGe3t\n0hdCNUBBY/Z2pJ5c9uijTEDL0A==\n-----END PRIVATE KEY-----\n',
-  signingPrivateKey: '-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgIO4b3u0fjjEMdDlT\nzxVOY0i7Hvf6g0JDByzkn0J/YuehRANCAASEbG0IWej3rPbxRmHDLWj8CE/ZzS0Y\n7BzuhVemjSBO1Iu1dZhY1+4KRak+rYlEb2rE5w91P69uTHl+YPAw5Ofa\n-----END PRIVATE KEY-----\n',
+  authToken: dummyAuthToken,
+  encryptionPrivateKey: rsaPrivateKeyPem,
+  signingPrivateKey: eccPrivateKeyPem,
   verifier: {
     did: dummyVerifierDid,
     uuid: verifierUuid,
@@ -65,9 +123,9 @@ export const dummyVerifierResponseDto: VerifierResponseDto = {
   createdAt: dummyVerifierEntity.createdAt,
   updatedAt: dummyVerifierEntity.updatedAt,
   apiKey: 'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
-  authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidmVyaWZpZXIiLCJ1dWlkIjoiZTMzNjQ0NTMtZmY1OS00NGI5LWJiOWEtY2I0NGQzODMzMDQ3IiwiZGlkIjoiZGlkOnVudW06NjI2MWFlYmUtZWI2NC00NzUwLTg0NTEtYjQwZTg1ZGU4ZWViIiwiZXhwIjoxNjEzNjkyMTA4LjgxNywiaWF0IjoxNjEzNjkzMTU2fQ.r5ucRkp7gZtWmko8D-7EzhnOhPNNlv_5-RdaVMRmnl0',
-  encryptionPrivateKey: '-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC5vL6S1xkvQukL\nMvi9JoM1yqzp+sdyYVPzF1pTs/cJ+f2HDYTkfb5Jzlc5DElR5cYmPJYyDft0bD68\npZstjLkRZVEawgSvNglGiiN/N3NihvcvDg7kjfhcuOXSY1s+Y/sHl7EB50nBNrkW\nSzhreKrBsgG7DtgKZNuA/rleWK4JE8veUDYz9CLexkUw3p3JWhKx50lYxHV/iZto\n+iP4VfWyJ4YHW1pLFaG3MYnjvM46XBqCUCW4YOX0PHerNYukXx0EvndoxvFgXQwJ\nck/xlpCoaCxZFVv5HvkHSe6HstsQzImh2j1TTXxNCnGd1xaXeQIoUqQk/jW6DFEU\nEqcNy1n9AgMBAAECggEBAJwKsQTGh1cIXKdW/FhVCbjgfGLamENE93VsMivOLwaH\nqvKSbgpUhdCV9Pttkg+m/dDT589HpfDKm+57JyKebkDqILhdNfhJaoODvIy9dkfZ\nYcN7iRGFIJotkI8vf9Grx5M6YrBZssILinXrXgwURUkTlpajwucAktUNq4hS8muW\ncmNGVIlos4kJ36TL+wsyxS0MrdvghreMykG9Pbbhg/JL3civ43Dssl9YWomhZge2\n46cfiB4mf0eMyIEhNHCwqecSqz3IyZLoyifp1BO+SgPRs5MO7xt3gp/u1aQAQtg5\nZgLPhOWQJ0GLkbXG/cusSnPxV9tTF6WP9AYdEoK1RCECgYEA41Rci/9BcrryY6bx\nUOWwy/GOlWWAKobfJZMUyjP7kBUKrTHAJ6nL0U6ifPsrTQADCoYSWRG1pmlhsVXb\nnHM+ExXCb5Gb8vXbZK9GSoqDrB/Lu3TFWSOdz4yhVraKfsohNAeiF0OnC1wCuPTB\nuNSY43BGAz/lHiTbvn7TK+41JlkCgYEA0SmFc99RKyGab+x4r38M4dHQyGfd2Kzy\nCVcdNVUe5Idnnu5OZCFN0ORMeoWZIuR8IeGj8vcCq/48215P9onoQEFrIo805Bw5\njX9XMToJVsg1hWznpqZm0mU/900VMOhJaeIAWvfTWiMIRgAy702hvt8zFf7duNhR\nOBQ8eqU/pEUCgYArHqJbT7SLXZiCfHUDgj3xwUTpY5JW/rQu/WIRJKEP6F3ZEjm/\njD6D2iWKDV5eQaVSBrJOQMSy5wRHzeBVIarhldwGq5joEehmhbSQiQuGx5UuXmzc\nhpv1dVhZCVDl0dNQei4tuYBi8DX3/T0NoQ3K/k3ZafI8sIMZ9BZ8G7frKQKBgQCM\n1chmHRgqUpYKhs88W+/wnbZXOpjGLK1MXLvuDUKf3gyHly5xfXtIDHDyjsJuHCr5\nJVWfY3MJHEcd7oMpHfKkUWgx/PtAHUEjZXrwSoO/S0++Z3YTYDgbstE/U0fRhpbo\nFKTom7ZUGwKXH8ssFrmyK9faF6JztDP77qRKcLpJgQKBgQCjBebFOW0TAQs8vhjS\nEsoDJ5J1Y7hTseFJ2sTLWfexHo3wXPC94cKsb65OFPoIaPFs5qOdf590unn7RpZP\nIl90M1J7jM+8xvUV3J2rCI3qejQZ0PF8uPvGs+NrSMc/eSicaHh5su+V7o4BGe3t\n0hdCNUBBY/Z2pJ5c9uijTEDL0A==\n-----END PRIVATE KEY-----\n',
-  signingPrivateKey: '-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgIO4b3u0fjjEMdDlT\nzxVOY0i7Hvf6g0JDByzkn0J/YuehRANCAASEbG0IWej3rPbxRmHDLWj8CE/ZzS0Y\n7BzuhVemjSBO1Iu1dZhY1+4KRak+rYlEb2rE5w91P69uTHl+YPAw5Ofa\n-----END PRIVATE KEY-----\n',
+  authToken: dummyAuthToken,
+  encryptionPrivateKey: rsaPrivateKeyPem,
+  signingPrivateKey: eccPrivateKeyPem,
   verifier: {
     did: dummyVerifierDid,
     uuid: verifierUuid,
@@ -223,30 +281,23 @@ const dummyCredential: Credential = {
   }
 };
 
-export const dummyPresentation: Presentation = {
+export const dummyPresentationUnsigned: UnsignedPresentation = {
+  // presentation = {
   '@context': [
     'https://www.w3.org/2018/credentials/v1'
   ],
-  presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
-  proof: {
-    created: '2021-02-22T11:36:34.113-0800',
-    proofPurpose: 'Presentations',
-    signatureValue: '381yXZEx4Z3tfBztX1o6xHbkqRija3svPYfTygUfK6uh8dHjeexaCq7nNvW17Sedd9Y93BJ9HsT17RtsCQ6NfFQomSF4pyx5',
-    unsignedValue: '{"@context":["https://www.w3.org/2018/credentials/v1"],"presentationRequestUuid":"256e9461-4b65-4941-a6cd-e379276a45b4","type":["VerifiablePresentation"],"uuid":"e0d0951a-190c-4dcb-9655-092012b7f265","verifiableCredential":[{"@context":["https://www.w3.org/2018/credentials/v1"],"credentialStatus":{"id":"https://api.sandbox-unumid.org//credentialStatus/d90b1bac-4805-410b-b81f-10b96fea8e98","type":"CredentialStatus"},"credentialSubject":{"accounts":{"checking":{"accountNumber":"543888430912","routingNumber":"021000021"}},"confidence":"99%","contactInformation":{"emailAddress":"AnvilAvoider@gmail.com","homeAddress":{"city":"Desert","country":"United States","line1":"98765 Runner Rd.","state":"AZ","zip":12345},"phoneNumber":"1234567890"},"driversLicense":{"expiration":"2026-01-14T00:00:00.000Z","number":"n-123456789","state":"AZ"},"firstName":"Wile","id":"did:unum:8de4666d-9692-4762-a015-0b8b1f8e08f7","lastName":"Coyote","middleInitial":"E.","ssn4":4321,"username":"state-Montana-211"},"expirationDate":"2022-02-11T00:00:00.000Z","id":"d90b1bac-4805-410b-b81f-10b96fea8e98","issuanceDate":"2021-02-11T22:23:05.590Z","issuer":"did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae","proof":{"created":"2021-02-11T22:23:05.590Z","proofPurpose":"AssertionMethod","signatureValue":"iKx1CJPw1Yog6jfUhEtzasgP3gC8AKzc9L4GXh3Zox8AYLjymu83P5SPsw4zx2JuVy7PXWYakgbDUdgS5CvH22rNcF2N9tYQ4b","type":"secp256r1Signature2020","verificationMethod":"did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae"},"type":["VerifiableCredential","BankIdentityCredential"]}]}',
-    type: 'secp256r1Signature2020',
-    verificationMethod: 'did:unum:8de4666d-9692-4762-a015-0b8b1f8e08f7#5ab4997a-73c2-498a-b6f1-53a6787cfd22'
-  },
   type: [
     'VerifiablePresentation'
   ],
-  uuid: 'e0d0951a-190c-4dcb-9655-092012b7f265',
-  verifiableCredential: [
+  // presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
+  presentationRequestUuid: dummyPresentationRequestUuid,
+  verifiableCredentials: [
     {
       '@context': [
         'https://www.w3.org/2018/credentials/v1'
       ],
       credentialStatus: {
-        id: 'https://api.sandbox-unumid.org//credentialStatus/d90b1bac-4805-410b-b81f-10b96fea8e98',
+        id: 'https://api.dev-unumid.org//credentialStatus/b2acd26a-ab18-4d18-9ad1-3b77f55c564b',
         type: 'CredentialStatus'
       },
       credentialSubject: {
@@ -280,7 +331,7 @@ export const dummyPresentation: Presentation = {
         ssn4: 4321,
         username: 'state-Montana-211'
       },
-      expirationDate: new Date('2022-02-11T00:00:00.000Z'),
+      expirationDate: new Date('2032-02-11T00:00:00.000Z'),
       id: 'd90b1bac-4805-410b-b81f-10b96fea8e98',
       issuanceDate: new Date('2021-02-11T22:23:05.590Z'),
       issuer: 'did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae',
@@ -300,6 +351,19 @@ export const dummyPresentation: Presentation = {
   ]
 };
 
+const presProof: Proof = createProof(dummyPresentationUnsigned, eccPrivateKeyPem, 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8#1e126861-a51b-491f-9206-e2c6b8639fd1', 'pem');
+export const dummyPresentation: Presentation = {
+  ...dummyPresentationUnsigned,
+  proof: presProof
+};
+
+export const dummyPresentationRequestInfo: PresentationRequestDto = dummyPresentationRequestPostDto;
+
+export const dummyEncryptedPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyPresentation, 'pem');
+export const dummyEncryptedPresentation = {
+  presentationRequestInfo: dummyPresentationRequestInfo,
+  encryptedPresentation: dummyEncryptedPresentationData
+};
 export const dummyPresentationWithVerification: PresentationWithVerification = {
   presentation: dummyPresentation,
   isVerified: true
@@ -321,8 +385,7 @@ export const dummyPresentationEntityOptions: PresentationEntityOptions = {
   presentationType: [
     'VerifiablePresentation'
   ],
-  presentationUuid: 'e0d0951a-190c-4dcb-9655-092012b7f265',
-  presentationVerifiableCredential: [
+  presentationVerifiableCredentials: [
     {
       '@context': [
         'https://www.w3.org/2018/credentials/v1'
@@ -437,8 +500,14 @@ export const dummyNoPresentationResponseDto: DemoNoPresentationDto = {
   isVerified: dummyNoPresentationWithVerification.isVerified
 };
 
+export const dummyEncryptedNoPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyNoPresentation, 'pem');
+export const dummyEncryptedNoPresentation = {
+  presentationRequestInfo: dummyPresentationRequestInfo,
+  encryptedPresentation: dummyEncryptedNoPresentationData
+};
+
 export const dummyVerifierRegistrationResponse = {
-  authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidmVyaWZpZXIiLCJ1dWlkIjoiZTMzNjQ0NTMtZmY1OS00NGI5LWJiOWEtY2I0NGQzODMzMDQ3IiwiZGlkIjoiZGlkOnVudW06NjI2MWFlYmUtZWI2NC00NzUwLTg0NTEtYjQwZTg1ZGU4ZWViIiwiZXhwIjoxNjEzNjkyMTA4LjgxNywiaWF0IjoxNjEzNjkzMTU2fQ.r5ucRkp7gZtWmko8D-7EzhnOhPNNlv_5-RdaVMRmnl0',
+  authToken: dummyAuthToken,
   body: {
     uuid: verifierUuid,
     customerUuid,
@@ -459,11 +528,55 @@ export const dummyVerifierRegistrationResponse = {
 };
 
 export const dummyPresentationVerificationResponse = {
-  authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidmVyaWZpZXIiLCJ1dWlkIjoiZTMzNjQ0NTMtZmY1OS00NGI5LWJiOWEtY2I0NGQzODMzMDQ3IiwiZGlkIjoiZGlkOnVudW06NjI2MWFlYmUtZWI2NC00NzUwLTg0NTEtYjQwZTg1ZGU4ZWViIiwiZXhwIjoxNjEzNjkyMTA4LjgxNywiaWF0IjoxNjEzNjkzMTU2fQ.r5ucRkp7gZtWmko8D-7EzhnOhPNNlv_5-RdaVMRmnl0',
+  authToken: dummyAuthToken,
   body: { isVerified: true }
 };
 
 export const dummyNoPresentationVerificationResponse = {
-  authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoidmVyaWZpZXIiLCJ1dWlkIjoiZTMzNjQ0NTMtZmY1OS00NGI5LWJiOWEtY2I0NGQzODMzMDQ3IiwiZGlkIjoiZGlkOnVudW06NjI2MWFlYmUtZWI2NC00NzUwLTg0NTEtYjQwZTg1ZGU4ZWViIiwiZXhwIjoxNjEzNjkyMTA4LjgxNywiaWF0IjoxNjEzNjkzMTU2fQ.r5ucRkp7gZtWmko8D-7EzhnOhPNNlv_5-RdaVMRmnl0',
+  authToken: dummyAuthToken,
   body: { isVerified: true }
+};
+
+const mockDecryptedPresentation: DecryptedPresentation = {
+  type: 'VerifiablePresentation',
+  presentation: dummyPresentation,
+  isVerified: true
+};
+
+const mockDecryptedNoPresentation: DecryptedPresentation = {
+  type: 'NoPresentation',
+  presentation: dummyNoPresentation,
+  isVerified: true
+};
+
+export const mockVerifiedEncryptedPresentation: UnumDto<DecryptedPresentation> = {
+  authToken: dummyAuthToken,
+  body: mockDecryptedPresentation
+};
+
+export const mockVerifiedEncryptedNoPresentation: UnumDto<DecryptedPresentation> = {
+  authToken: dummyAuthToken,
+  body: mockDecryptedNoPresentation
+};
+
+const mockDecryptedInvalidPresentation: DecryptedPresentation = {
+  type: 'VerifiablePresentation',
+  presentation: dummyPresentation,
+  isVerified: false
+};
+
+const mockDecryptedInvalidNoPresentation: DecryptedPresentation = {
+  type: 'NoPresentation',
+  presentation: dummyNoPresentation,
+  isVerified: false
+};
+
+export const mockNotVerifiedEncryptedPresentation: UnumDto<DecryptedPresentation> = {
+  authToken: dummyAuthToken,
+  body: mockDecryptedInvalidPresentation
+};
+
+export const mockNotVerifiedEncryptedNoPresentation: UnumDto<DecryptedPresentation> = {
+  authToken: dummyAuthToken,
+  body: mockDecryptedInvalidNoPresentation
 };

@@ -21,7 +21,6 @@ describe('PresentationEntity', () => {
 
     it('sets the presentation data from options', () => {
       expect(presentationEntity.presentationContext).toEqual(dummyPresentationEntityOptions.presentationContext);
-      expect(presentationEntity.presentationUuid).toEqual(dummyPresentationEntityOptions.presentationUuid);
       expect(presentationEntity.presentationType).toEqual(dummyPresentationEntityOptions.presentationType);
       expect(presentationEntity.presentationVerifiableCredential).toEqual(dummyPresentationEntityOptions.presentationVerifiableCredential);
       expect(presentationEntity.presentationProof).toEqual(dummyPresentationEntityOptions.presentationProof);
@@ -54,10 +53,10 @@ describe('PresentationEntity', () => {
       const savedPresentationEntity = await orm.em.findOneOrFail(PresentationEntity, presentationEntity.uuid);
       const expected = {
         ...wrap(savedPresentationEntity).toPOJO(),
-        presentationVerifiableCredential: [{
-          ...savedPresentationEntity.presentationVerifiableCredential[0],
-          expirationDate: new Date(savedPresentationEntity.presentationVerifiableCredential[0].expirationDate),
-          issuanceDate: new Date(savedPresentationEntity.presentationVerifiableCredential[0].issuanceDate)
+        presentationVerifiableCredentials: [{
+          ...savedPresentationEntity.presentationVerifiableCredentials[0],
+          expirationDate: new Date(savedPresentationEntity.presentationVerifiableCredentials[0].expirationDate),
+          issuanceDate: new Date(savedPresentationEntity.presentationVerifiableCredentials[0].issuanceDate)
         }]
       };
       expect(expected).toEqual(wrap(presentationEntity).toPOJO());
