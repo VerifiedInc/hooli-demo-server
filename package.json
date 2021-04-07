@@ -1,6 +1,6 @@
 {
-  "name": "demo-verifier-server-starter",
-  "description": "A starter server for verifiers in the ACME family of demos",
+  "name": "auth-demo-verifier-server",
+  "description": "verifier server for the ACME auth demo",
   "version": "0.0.1",
   "homepage": "",
   "private": true,
