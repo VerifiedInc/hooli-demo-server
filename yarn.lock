@@ -1169,13 +1169,7 @@
     winston "^3.3.3"
     winston-syslog "^2.4.4"
 
-"@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.2.1":
-  version "0.0.1"
-  resolved "git+ssh://git@github.com/UnumID/types.git#b8d350a9e97b7e9e23b70eaea62a136fecd3c136"
-  dependencies:
-    runtypes "^6.0.0"
-
-"@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.3.0":
+"@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.2.1", "@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.3.0":
   version "0.0.1"
   resolved "git+ssh://git@github.com/UnumID/types.git#a7899835c351d1a2f2402cc308bb1f3386189630"
   dependencies:

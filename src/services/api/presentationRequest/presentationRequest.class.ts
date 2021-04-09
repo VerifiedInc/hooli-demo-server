@@ -27,6 +27,7 @@ const makePresentationRequestEntityOptionsFromDto = (
     },
     verifier: prVerifierInfo,
     issuers: prIssuerInfo,
+    holderApp: prHolderAppInfo,
     deeplink: prDeeplink,
     qrCode: prQrCode
   } = dto;
@@ -43,6 +44,7 @@ const makePresentationRequestEntityOptionsFromDto = (
     prHolderAppUuid,
     prVerifierInfo,
     prIssuerInfo,
+    prHolderAppInfo,
     prDeeplink,
     prQrCode
   };
@@ -66,6 +68,7 @@ const makeDemoPresentationRequestDtoFromEntity = (
     prHolderAppUuid,
     prVerifierInfo,
     prIssuerInfo,
+    prHolderAppInfo,
     prDeeplink,
     prQrCode
   } = entity;
@@ -88,6 +91,7 @@ const makeDemoPresentationRequestDtoFromEntity = (
       },
       verifier: prVerifierInfo,
       issuers: prIssuerInfo,
+      holderApp: prHolderAppInfo,
       deeplink: prDeeplink,
       qrCode: prQrCode
     }
