@@ -109,6 +109,7 @@ export class PresentationService {
     try {
       const presentationRequestService = this.app.service('presentationRequestData');
       const presentationRequest: PresentationRequestEntity = await presentationRequestService.findOne({ prUuid: data.presentationRequestInfo.presentationRequest.uuid });
+      const presentationWebsocketService = this.app.service('presentationWebsocket');
 
       if (!presentationRequest) {
         throw new NotFound('PresentationRequest not found.');
@@ -136,14 +137,22 @@ export class PresentationService {
 
       if (result.type === 'VerifiablePresentation') {
         try {
-          await this.createPresentationEntity(result, params);
+          // Create and persist the Presentation entity
+          const entity = await this.createPresentationEntity(result, params);
+
+          // Pass the Presentation entity to the websocket service for the web client's consumption
+          presentationWebsocketService.create(entity);
         } catch (e) {
           logger.error('PresentationService.create caught an error thrown by PresentationService.createPresentationEntity', e);
           throw e;
         }
       } else {
         try {
-          await this.createNoPresentationEntity(result, params);
+          // Create and persist the NoPresentation entity
+          const entity = await this.createNoPresentationEntity(result, params);
+
+          // Pass the NoPresentation entity to the websocket service for the web client's consumption
+          presentationWebsocketService.create(entity);
         } catch (e) {
           logger.error('PresentationService.create caught an error thrown by PresentationService.createNoPresentationEntity', e);
           throw e;
