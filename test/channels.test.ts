@@ -45,7 +45,7 @@ describe('channels', () => {
   it('publishes presentations with presentationPublisher', async () => {
     mockService.mockReturnValueOnce(dummyPresentationService);
     channels(app);
-    expect(mockService.mock.calls[0][0]).toEqual('presentation');
+    expect(mockService.mock.calls[0][0]).toEqual('presentationWebsocket');
     expect(mockPublish).toBeCalled();
   });
 });

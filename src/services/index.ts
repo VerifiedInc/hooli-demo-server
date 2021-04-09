@@ -1,17 +1,22 @@
 import { Application } from '../declarations';
 
+// Data services
 import sessionData from './data/session.data.service';
 import verifierData from './data/verifier.data.service';
 import presentationRequestData from './data/presentationRequest.data.service';
 import presentationData from './data/presentation.data.service';
 import noPresentationData from './data/noPresentation.data.service';
 
+// API services
 import session from './api/session/session.service';
 import verifier from './api/verifier/verifier.service';
 import presentationRequest from './api/presentationRequest/presentationRequest.service';
 import presentation from './api/presentation/presentation.service';
 import email from './api/email/email.service';
 import sms from './api/sms/sms.service';
+
+// Websocket services
+import presentationWebsocket from './websocket/presentation/presentation.service';
 
 export default function (app: Application): void {
   app.configure(sessionData);
@@ -25,4 +30,5 @@ export default function (app: Application): void {
   app.configure(presentation);
   app.configure(email);
   app.configure(sms);
+  app.configure(presentationWebsocket);
 }
