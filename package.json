@@ -102,5 +102,8 @@
       "./src/mikro-orm.config.ts",
       "./build/mikro-orm.config.js"
     ]
+  },
+  "resolutions": {
+    "@unumid/types": "git+ssh://git@github.com/UnumID/types.git#v1.3.0"
   }
 }

@@ -3,7 +3,8 @@ import {
   CredentialRequest,
   Issuer,
   Proof,
-  Verifier
+  Verifier,
+  HolderApp
 } from '@unumid/types';
 
 import { BaseEntity, BaseEntityOptions } from './BaseEntity';
@@ -20,6 +21,7 @@ export interface PresentationRequestEntityOptions extends BaseEntityOptions {
   prHolderAppUuid: string;
   prVerifierInfo: Pick<Verifier, 'did' | 'name' | 'url'>;
   prIssuerInfo: Record<string, Pick<Issuer, 'did' | 'name'>>;
+  prHolderAppInfo: Pick<HolderApp, 'name' | 'uriScheme' | 'deeplinkButtonImg'>
   prDeeplink: string;
   prQrCode: string;
 }
@@ -60,6 +62,9 @@ export class PresentationRequestEntity extends BaseEntity {
   @Property()
   prIssuerInfo: Record<string, Pick<Issuer, 'did' | 'name'>>;
 
+  @Property()
+  prHolderAppInfo: Pick<HolderApp, 'name' | 'uriScheme' | 'deeplinkButtonImg'>;
+
   @Property({ columnType: 'text' })
   prDeeplink: string;
 
@@ -81,6 +86,7 @@ export class PresentationRequestEntity extends BaseEntity {
       prHolderAppUuid,
       prVerifierInfo,
       prIssuerInfo,
+      prHolderAppInfo,
       prDeeplink,
       prQrCode
     } = options;
@@ -96,6 +102,7 @@ export class PresentationRequestEntity extends BaseEntity {
     this.prHolderAppUuid = prHolderAppUuid;
     this.prVerifierInfo = prVerifierInfo;
     this.prIssuerInfo = prIssuerInfo;
+    this.prHolderAppInfo = prHolderAppInfo;
     this.prDeeplink = prDeeplink;
     this.prQrCode = prQrCode;
   }
