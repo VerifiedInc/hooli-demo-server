@@ -1130,13 +1130,13 @@
     bs58 "^4.0.1"
     fast-json-stable-stringify "^2.1.0"
 
-"@unumid/library-issuer-verifier-utility@git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#v0.10.0":
+"@unumid/library-issuer-verifier-utility@git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#v0.11.0":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#3c205361225060d0a6a3dab817100e40471043cd"
+  resolved "git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#24778c4c48e48b3ada21be014498da77ec7dcaa9"
   dependencies:
     "@types/lodash" "^4.14.168"
     "@unumid/library-crypto" "https://github.com/UnumID/Library-Crypto-TypeScript.git#v1.2.0"
-    "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v1.2.1"
+    "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v1.3.0"
     dotenv "^8.2.0"
     express "^4.17.1"
     lodash "^4.17.21"
@@ -1144,12 +1144,13 @@
     uuid "^8.2.0"
     winston "^3.3.3"
 
-"@unumid/server-sdk@git+ssh://git@github.com/UnumID/Server-SDK-Typescript.git#v1.1.1":
-  version "0.1.0"
-  resolved "git+ssh://git@github.com/UnumID/Server-SDK-Typescript.git#d6cf3b965f9ffd213572e782658195707066d193"
+"@unumid/server-sdk@1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@unumid/server-sdk/-/server-sdk-1.1.2.tgz#95f98f7127fdaabb27a3cd732255a9d56d074479"
+  integrity sha512-+ShpUb+eLIvmV22mxiH2Zy4+yYjuOD9vJg6/+gJuVFOslNVxastJOse1p4L0059ktnCHwHNi4QSDd8+AJi5G1A==
   dependencies:
-    "@unumid/library-issuer-verifier-utility" "git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#v0.10.0"
-    "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v1.2.1"
+    "@unumid/library-issuer-verifier-utility" "git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#v0.11.0"
+    "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v1.3.0"
     dotenv "^8.2.0"
     express "^4.17.1"
     fast-json-stable-stringify "^2.1.0"
@@ -1161,6 +1162,12 @@
 "@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.2.1":
   version "0.0.1"
   resolved "git+ssh://git@github.com/UnumID/types.git#b8d350a9e97b7e9e23b70eaea62a136fecd3c136"
+  dependencies:
+    runtypes "^6.0.0"
+
+"@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.3.0":
+  version "0.0.1"
+  resolved "git+ssh://git@github.com/UnumID/types.git#a7899835c351d1a2f2402cc308bb1f3386189630"
   dependencies:
     runtypes "^6.0.0"
 
