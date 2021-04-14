@@ -12,7 +12,6 @@ import {
   PresentationRequestDto
 } from '@unumid/types';
 import { encrypt } from '@unumid/library-crypto';
-import { createProof } from '@unumid/library-issuer-verifier-utility';
 
 import { VerifierEntityOptions, VerifierEntity } from '../src/entities/Verifier';
 import { PresentationRequestEntity, PresentationRequestEntityOptions } from '../src/entities/PresentationRequest';
@@ -25,7 +24,7 @@ import {
   NoPresentationWithVerification
 } from '../src/services/api/presentation/presentation.class';
 import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types';
-import { DecryptedPresentation, UnumDto } from '@unumid/server-sdk';
+import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk';
 
 // export const dummyVerifierDid = `did:unum:${v4()}`;
 export const dummyVerifierDid = 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8';

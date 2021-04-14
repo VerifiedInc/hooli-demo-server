@@ -6,7 +6,7 @@ import logger from '../../../logger';
 
 export interface SmsOptions {
   to: string;
-  msg: string;
+  deeplink: string;
 }
 
 export class SmsService {
@@ -23,7 +23,7 @@ export class SmsService {
     let result: UnumDto<undefined>;
 
     try {
-      result = await sendSms(verifier.authToken, options.to, options.msg);
+      result = await sendSms(verifier.authToken, options.to, options.deeplink);
     } catch (e) {
       logger.error('SmsService.create caught an error thrown by ServerSDK.sendSms', e);
       throw new GeneralError('Error sending sms', e);

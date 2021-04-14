@@ -25,8 +25,7 @@ describe('EmailService', () => {
       (sendEmail as jest.Mock).mockResolvedValueOnce({ authToken: dummyVerifierEntity.authToken });
       const options = {
         to: 'test@unum.id',
-        subject: 'test',
-        htmlBody: '<div>test</div>'
+        deeplink: 'deeplink'
       };
 
       await service.create(options);

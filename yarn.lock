@@ -919,7 +919,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/lodash@*", "@types/lodash@^4.14.168":
+"@types/lodash@*":
   version "4.14.168"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.168.tgz#fe24632e79b7ade3f132891afff86caa5e5ce008"
   integrity sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
@@ -1140,36 +1140,24 @@
     bs58 "^4.0.1"
     fast-json-stable-stringify "^2.1.0"
 
-"@unumid/library-issuer-verifier-utility@git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#v0.11.0":
-  version "1.0.0"
-  resolved "git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#24778c4c48e48b3ada21be014498da77ec7dcaa9"
+"@unumid/server-sdk@git+ssh://git@github.com/UnumID/Server-SDK-Typescript.git#1.3.1":
+  version "1.3.1"
+  resolved "git+ssh://git@github.com/UnumID/Server-SDK-Typescript.git#43db9eed791cc3a845ef09831ec681ec674e5b9a"
   dependencies:
-    "@types/lodash" "^4.14.168"
+    "@types/uuid" "^8.3.0"
     "@unumid/library-crypto" "https://github.com/UnumID/Library-Crypto-TypeScript.git#v1.2.0"
-    "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v1.3.0"
-    dotenv "^8.2.0"
-    express "^4.17.1"
-    lodash "^4.17.21"
-    node-fetch "^2.6.1"
-    uuid "^8.2.0"
-    winston "^3.3.3"
-
-"@unumid/server-sdk@1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@unumid/server-sdk/-/server-sdk-1.1.2.tgz#95f98f7127fdaabb27a3cd732255a9d56d074479"
-  integrity sha512-+ShpUb+eLIvmV22mxiH2Zy4+yYjuOD9vJg6/+gJuVFOslNVxastJOse1p4L0059ktnCHwHNi4QSDd8+AJi5G1A==
-  dependencies:
-    "@unumid/library-issuer-verifier-utility" "git+ssh://git@github.com/UnumID/library-issuer-verifier-utility.git#v0.11.0"
-    "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v1.3.0"
+    "@unumid/types" "https://github.com/UnumID/types.git#1.4.1"
     dotenv "^8.2.0"
     express "^4.17.1"
     fast-json-stable-stringify "^2.1.0"
-    lodash "^4.17.20"
+    lodash "^4.17.21"
+    node-fetch "^2.6.1"
     ts-node "^9.0.0"
+    uuid "^8.3.2"
     winston "^3.3.3"
     winston-syslog "^2.4.4"
 
-"@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.2.1", "@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.3.0":
+"@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.2.1", "@unumid/types@git+ssh://git@github.com/UnumID/types.git#v1.3.0", "@unumid/types@https://github.com/UnumID/types.git#1.4.1":
   version "0.0.1"
   uid a7899835c351d1a2f2402cc308bb1f3386189630
   resolved "git+ssh://git@github.com/UnumID/types.git#a7899835c351d1a2f2402cc308bb1f3386189630"
@@ -6705,7 +6693,7 @@ uuid@^3.2.1, uuid@^3.3.2:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
-uuid@^8.2.0, uuid@^8.3.0, uuid@^8.3.1, uuid@^8.3.2:
+uuid@^8.3.0, uuid@^8.3.1, uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==

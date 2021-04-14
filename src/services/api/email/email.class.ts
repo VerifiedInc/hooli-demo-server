@@ -6,8 +6,7 @@ import logger from '../../../logger';
 
 export interface EmailOptions {
   to: string;
-  subject: string;
-  htmlBody: string;
+  deeplink: string;
 }
 
 export class EmailService {
@@ -24,7 +23,7 @@ export class EmailService {
     let result: UnumDto<undefined>;
 
     try {
-      result = await sendEmail(verifier.authToken, options.to, options.subject, undefined, options.htmlBody);
+      result = await sendEmail(verifier.authToken, options.to, options.deeplink);
     } catch (e) {
       logger.error('EmailService.create caught an error thrown by ServerSDK.sendEmail', e);
       throw new GeneralError('Error sending email', e);
