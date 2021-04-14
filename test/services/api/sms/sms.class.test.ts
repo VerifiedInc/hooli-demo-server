@@ -25,7 +25,7 @@ describe('SmsService', () => {
       (sendSms as jest.Mock).mockResolvedValueOnce({ authToken: dummyVerifierEntity.authToken });
       const options = {
         to: 'KL5-5555',
-        msg: 'test'
+        deeplink: 'deeplink'
       };
 
       await service.create(options);
