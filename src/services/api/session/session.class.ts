@@ -39,7 +39,7 @@ export class SessionService {
     }
   }
 
-  async remove (uuid: NullableId, params?: Params): Promise<Session> {
+  async remove (uuid: NullableId, params?: Params): Promise<Session | { success: true }> {
     try {
       const removedSession = await this.dataService.remove(uuid, params);
       return removedSession;

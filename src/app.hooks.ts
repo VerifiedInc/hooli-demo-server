@@ -20,9 +20,13 @@ function logError (ctx: HookContext): void {
   logger.warn(`Error in ${path}#${method}: name=${name} code=${code} message=${message}`, info);
 }
 
-function log (ctx: HookContext): void {
+function log (ctx: HookContext): HookContext {
   const { path, method, id, data } = ctx;
-  logger.info(`${path}#${method}${id ? ` id: ${id}` : ''}${data ? ` data: ${JSON.stringify(data)}}` : ''}`);
+  const string = data && JSON.stringify(data);
+  const length = 2000;
+  const dataString = string && (string.length < length ? string : string.substring(0, length - 3) + '...');
+  logger.info(`${path}#${method}${id ? ` id: ${id}` : ''}${data ? ` data: ${dataString}}` : ''}`);
+  return ctx;
 }
 
 function logResult (ctx: HookContext): HookContext {
