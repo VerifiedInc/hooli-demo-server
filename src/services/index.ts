@@ -16,7 +16,7 @@ import email from './api/email/email.service';
 import sms from './api/sms/sms.service';
 
 // Websocket services
-import presentationWebsocket from './websocket/presentation/presentation.service';
+import presentationWebsocket from './websocket/presentation/presentation.websocket.service';
 
 export default function (app: Application): void {
   app.configure(sessionData);

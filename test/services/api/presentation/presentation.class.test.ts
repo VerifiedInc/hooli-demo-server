@@ -89,8 +89,7 @@ describe('PresentationService', () => {
         isVerified: true,
         type: 'VerifiablePresentation',
         presentationReceiptInfo: expectedPresentationReceiptInfo,
-        presentationRequestUuid: dummyPresentation.presentationRequestUuid,
-        presentation: dummyPresentation
+        presentationRequestUuid: dummyPresentation.presentationRequestUuid
       };
 
       // Expecting the response value to correspond to the inputted Presentation attributes.
@@ -131,9 +130,7 @@ describe('PresentationService', () => {
         isVerified: true,
         type: 'NoPresentation',
         presentationReceiptInfo: expectedPresentationReceiptInfo,
-        // presentationRequestUuid: dummyNoPresentation.presentationRequestUuid,
-        presentationRequestUuid: dummyPresentationRequestInfo.presentationRequest.uuid,
-        presentation: dummyNoPresentation
+        presentationRequestUuid: dummyPresentationRequestInfo.presentationRequest.uuid
       };
 
       // Expecting the response value to correspond to the inputted Presentation attributes.
