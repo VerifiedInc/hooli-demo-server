@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 
 import { Application } from '../../../declarations';
-import { PresentationService } from './presentation.class';
+import { PresentationService } from './presentation.websocket.class';
 import { PresentationEntity } from '../../../entities/Presentation';
 
 // add this service to the service type index
