@@ -1126,9 +1126,9 @@
     "@typescript-eslint/types" "4.22.0"
     eslint-visitor-keys "^2.0.0"
 
-"@unumid/demo-types@git+ssh://git@github.com/UnumID/demo-types.git#v0.4.1":
+"@unumid/demo-types@git+ssh://git@github.com/UnumID/demo-types.git#res":
   version "0.0.1"
-  resolved "git+ssh://git@github.com/UnumID/demo-types.git#aad37868392d8148b537243044e91ef936e62fa2"
+  resolved "git+ssh://git@github.com/UnumID/demo-types.git#32463b928a715b80c6f92f302142e4f7cc9dea39"
   dependencies:
     "@unumid/types" "git+ssh://git@github.com/UnumID/types.git#v1.2.1"
 

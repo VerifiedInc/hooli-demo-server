@@ -173,7 +173,7 @@ export class PresentationService {
 
       logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
 
-      return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid, presentation: decryptedPresentation };
+      return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
     } catch (error) {
       if (error instanceof CryptoError) {
         logger.error('Crypto error handling encrypted presentation', error);
