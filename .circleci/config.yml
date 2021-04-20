@@ -145,16 +145,16 @@ workflows:
             branches:
               ignore: /.*/
 
-      # - build-and-push-image-sandbox:
-      #     requires:
-      #       - test
-      #     context: AWS-Dev
-      #     repo: hooli-demo-server
-      #     filters:
-      #       tags:
-      #         only: /^v.*/
-      #       branches:
-      #         ignore: /.*/
+      - build-and-push-image-sandbox:
+          requires:
+            - test
+          context: AWS-Dev
+          repo: hooli-demo-server-new
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
 
       # - deploy-image-sandbox:
       #     requires:
