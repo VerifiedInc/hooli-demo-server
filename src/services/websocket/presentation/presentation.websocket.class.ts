@@ -10,7 +10,8 @@ import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
 import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
-import { DemoNoPresentationDto, DemoPresentationDto, VerificationResponse } from '@unumid/demo-types';
+import { DemoNoPresentationDto as DemoNoPresentationDtoDeprecated, DemoPresentationDto as DemoPresentationDtoDeprecated } from '@unumid/demo-types-deprecated';
+import { DemoPresentationDto, VerificationResponse } from '@unumid/demo-types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
@@ -44,7 +45,7 @@ const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPres
   };
 };
 
-const makeDemoNoPresentationDtoFromEntity = (entity: NoPresentationEntity): DemoNoPresentationDto => {
+const makeDemoNoPresentationDtoFromEntity = (entity: NoPresentationEntity): DemoNoPresentationDtoDeprecated => {
   const {
     uuid,
     createdAt,
