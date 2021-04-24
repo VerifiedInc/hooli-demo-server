@@ -1,5 +1,5 @@
 import { Entity, Property } from '@mikro-orm/core';
-// import { VersionInfo } from '@unumid/demo-types-new/node_modules/@unumid/types';
+// import { VersionInfo } from '@unumid/demo-types/node_modules/@unumid/types';
 
 import { BaseEntity, BaseEntityOptions } from './BaseEntity';
 
@@ -74,8 +74,8 @@ export class VerifierEntity extends BaseEntity {
       verifierName,
       verifierCustomerUuid,
       verifierUrl,
-      verifierIsAuthorized,
-      VersionInfo
+      verifierIsAuthorized
+      // VersionInfo
     } = options;
 
     this.apiKey = apiKey;

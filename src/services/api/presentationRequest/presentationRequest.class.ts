@@ -1,7 +1,7 @@
 import { NullableId, Params } from '@feathersjs/feathers';
 import { PresentationRequestPostDto } from '@unumid/types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
-import { DemoPresentationRequestDto } from '@unumid/demo-types-new';
+import { DemoPresentationRequestDto } from '@unumid/demo-types';
 
 import { Application } from '../../../declarations';
 import { PresentationRequestEntity, PresentationRequestEntityOptions } from '../../../entities/PresentationRequest';

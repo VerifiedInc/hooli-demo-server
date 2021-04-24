@@ -1,9 +1,12 @@
 import { Hook } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
-import { Presentation, NoPresentation, EncryptedPresentation } from '@unumid/types';
+import { Presentation as PresentationDeprecated, NoPresentation as NoPresentationDeprecated } from '@unumid/types-deprecated';
+import { Presentation, EncryptedPresentation } from '@unumid/types';
+import { WithVersion } from '@unumid/demo-types';
+import { valid } from 'semver';
 
-export const validateData: Hook<EncryptedPresentation> = (ctx) => {
-  const { data } = ctx;
+export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
+  const { data, params } = ctx;
   if (!data) {
     throw new BadRequest('data is required.');
   }
@@ -16,11 +19,30 @@ export const validateData: Hook<EncryptedPresentation> = (ctx) => {
     throw new BadRequest('encryptedPresentation is required.');
   }
 
-  ctx.params.isValidated = true;
+  if (!params.headers || !params.headers.version) {
+    throw new BadRequest('version header is required.');
+  }
+
+  if (!valid(params.headers.version)) {
+    throw new BadRequest('version header must be in valid semver notation.');
+  }
+
+  data.version = params.headers.version;
 };
 
+// export const checkVersion: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
+//   const { params, data } = ctx;
+//   if (!params.headers || !params.headers.version) {
+//     throw new BadRequest('version header is required.');
+//   }
+
+//   data?.version = ;
+
+//   ctx.params.isValidated = true;
+// };
+
 export interface DataWithVerification {
-  presentation: Presentation | NoPresentation;
+  presentation: Presentation | PresentationDeprecated | NoPresentationDeprecated;
   isVerified: boolean;
 }
 

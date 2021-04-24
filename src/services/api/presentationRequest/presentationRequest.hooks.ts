@@ -2,7 +2,7 @@ import { Hook } from '@feathersjs/feathers';
 import { BadRequest, GeneralError } from '@feathersjs/errors';
 import { sendRequest } from '@unumid/server-sdk';
 import { PresentationRequestPostDto } from '@unumid/types';
-import { DemoPresentationRequestCreateOptions } from '@unumid/demo-types-new';
+import { DemoPresentationRequestCreateOptions } from '@unumid/demo-types';
 
 import { config } from '../../../config';
 import logger from '../../../logger';
