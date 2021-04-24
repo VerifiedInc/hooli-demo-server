@@ -1,6 +1,6 @@
 import { PresentationService } from '../../../../src/services/api/presentation/presentation.class';
 import { Application } from '../../../../src/declarations';
-import * as serverSdk from '@unumid/server-sdk';
+import * as serverSdk from '@unumid/server-sdk-deprecated';
 import { CryptoError } from '@unumid/library-crypto';
 
 import {

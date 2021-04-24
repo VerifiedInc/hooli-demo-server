@@ -28,6 +28,8 @@ export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   }
 
   data.version = params.headers.version;
+
+  params.isValidated = true;
 };
 
 // export const checkVersion: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {

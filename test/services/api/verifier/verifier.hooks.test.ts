@@ -99,10 +99,11 @@ describe('verifier service hooks', () => {
           customerUuid: v4(),
           name: 'test verifier',
           apiKey: 'dummy api key',
-          url: 'https://verifier.unum.id/presentation'
+          url: 'https://verifier.unum.id/presentation',
+          versionInfo: []
         },
-        params: {}
-      } as HookContext;
+        params: { headers: { version: '1.0.0' } }
+      } as unknown as HookContext;
       validateVerifierCreateOptions(ctx);
       expect(ctx.params.isValidated).toBe(true);
     });

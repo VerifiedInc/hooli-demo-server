@@ -9,7 +9,8 @@ import {
   NoPresentation,
   UnsignedPresentation,
   Proof,
-  PresentationRequestDto
+  PresentationRequestDto,
+  EncryptedPresentation
 } from '@unumid/types';
 import { encrypt } from '@unumid/library-crypto';
 
@@ -23,7 +24,7 @@ import {
   PresentationWithVerification,
   NoPresentationWithVerification
 } from '../src/services/api/presentation/presentation.class';
-import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types';
+import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto, WithVersion } from '@unumid/demo-types';
 import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk';
 
 // export const dummyVerifierDid = `did:unum:${v4()}`;
@@ -136,7 +137,8 @@ export const dummyVerifierResponseDto: VerifierResponseDto = {
     name: 'test verifier',
     customerUuid,
     url: 'https://verifier-api.demo.unum.id/presentation',
-    isAuthorized: true
+    isAuthorized: true,
+    versionInfo: []
   }
 };
 
@@ -371,10 +373,15 @@ export const dummyPresentation: Presentation = {
 export const dummyPresentationRequestInfo: PresentationRequestDto = dummyPresentationRequestPostDto;
 
 export const dummyEncryptedPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyPresentation, 'pem');
-export const dummyEncryptedPresentation = {
+export const dummyEncryptedPresentation: WithVersion<EncryptedPresentation> = {
   presentationRequestInfo: dummyPresentationRequestInfo,
-  encryptedPresentation: dummyEncryptedPresentationData
+  encryptedPresentation: dummyEncryptedPresentationData,
+  version: '1.0.0'
 };
+// export const dummyEncryptedPresentationWithoutVersion: EncryptedPresentation = {
+//   presentationRequestInfo: dummyPresentationRequestInfo,
+//   encryptedPresentation: dummyEncryptedPresentationData
+// };
 export const dummyPresentationWithVerification: PresentationWithVerification = {
   presentation: dummyPresentation,
   isVerified: true
@@ -512,9 +519,10 @@ export const dummyNoPresentationResponseDto: DemoNoPresentationDto = {
 };
 
 export const dummyEncryptedNoPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyNoPresentation, 'pem');
-export const dummyEncryptedNoPresentation = {
+export const dummyEncryptedNoPresentation: WithVersion<EncryptedPresentation> = {
   presentationRequestInfo: dummyPresentationRequestInfo,
-  encryptedPresentation: dummyEncryptedNoPresentationData
+  encryptedPresentation: dummyEncryptedNoPresentationData,
+  version: '1.0.0'
 };
 
 export const dummyVerifierRegistrationResponse = {

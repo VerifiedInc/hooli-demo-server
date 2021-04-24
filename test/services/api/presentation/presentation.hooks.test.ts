@@ -32,8 +32,8 @@ describe('presentation service hooks', () => {
     it('marks the hook context as validated', () => {
       const ctx = {
         data: dummyEncryptedPresentation,
-        params: {}
-      } as HookContext;
+        params: { headers: { version: '1.0.0' } }
+      } as unknown as HookContext;
 
       validateData(ctx);
       expect(ctx.params.isValidated).toBe(true);

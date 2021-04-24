@@ -223,7 +223,7 @@ export class PresentationService {
           subjectDid: credentialInfo.subjectDid,
           credentialTypes: credentialInfo.credentialTypes,
           verifierDid: verifier.verifierDid,
-          holderApp: data.presentationRequestInfo.presentationRequest.holderAppUuid,
+          holderApp: (response.body.presentation as NoPresentationDeprecated).holder,
           issuers: result.type === 'VerifiablePresentation' ? presentationRequest.prIssuerInfo : undefined
         };
 
