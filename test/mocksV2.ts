@@ -24,9 +24,8 @@ import {
   PresentationWithVerificationDeprecated,
   NoPresentationWithVerificationDeprecated
 } from '../src/services/api/presentation/presentation.class';
-import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types-deprecated';
-import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk-deprecated';
-import { WithVersion } from '@unumid/demo-types';
+import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto, WithVersion } from '@unumid/demo-types';
+import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk';
 
 // export const dummyVerifierDid = `did:unum:${v4()}`;
 export const dummyVerifierDid = 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8';
@@ -116,8 +115,7 @@ export const dummyVerifierRequestDto: VerifierRequestDto = {
     name: 'test verifier',
     customerUuid,
     url: 'https://verifier-api.demo.unum.id/presentation',
-    isAuthorized: true,
-    versionInfo: []
+    isAuthorized: true
   }
 };
 
@@ -306,8 +304,8 @@ export const dummyPresentationUnsigned: UnsignedPresentation = {
   ],
   // presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
   presentationRequestUuid: dummyPresentationRequestUuid,
-  verifierDid: dummyVerifierDid,
-  verifiableCredentials: [
+  verifierDid: 'did',
+  verifiableCredential: [
     {
       '@context': [
         'https://www.w3.org/2018/credentials/v1'
@@ -381,7 +379,7 @@ export const dummyEncryptedPresentation: WithVersion<EncryptedPresentation> = {
   encryptedPresentation: dummyEncryptedPresentationData,
   version: '1.0.0'
 };
-// export const dummyEncryptedPresentation: EncryptedPresentation = {
+// export const dummyEncryptedPresentationWithoutVersion: EncryptedPresentation = {
 //   presentationRequestInfo: dummyPresentationRequestInfo,
 //   encryptedPresentation: dummyEncryptedPresentationData
 // };
@@ -406,7 +404,7 @@ export const dummyPresentationEntityOptions: PresentationEntityOptions = {
   presentationType: [
     'VerifiablePresentation'
   ],
-  verifierDid: dummyVerifierDid,
+  verifierDid: 'did',
   presentationVerifiableCredentials: [
     {
       '@context': [
@@ -482,7 +480,6 @@ export const dummyNoPresentation: NoPresentation = {
   holder: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
   presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
   type: ['NoPresentation', 'NoPresentation'],
-  verifierDid: dummyVerifierDid,
   proof: {
     created: '2021-02-22T21:30:03.377Z',
     signatureValue: 'AN1rKvszAWeMwUW7ghrEG9BfWr7a5n9kWpvqQrW5bQKM9sCS4KDmiwX6PZidMNcYRTvwQ9RLyHELQu33TbcUPVwWEqE23wJHs',

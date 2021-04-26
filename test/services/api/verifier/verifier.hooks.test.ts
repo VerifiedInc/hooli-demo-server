@@ -185,7 +185,8 @@ describe('verifier service hooks', () => {
           customerUuid,
           name: 'test verifier',
           apiKey: 'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
-          url: 'https://verifier-api.demo.unum.id/presentation'
+          url: 'https://verifier-api.demo.unum.id/presentation',
+          versionInfo: []
         },
         params: { isValidated: true }
       } as unknown as HookContext;
