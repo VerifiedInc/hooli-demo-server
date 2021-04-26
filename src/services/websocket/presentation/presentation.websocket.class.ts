@@ -1,5 +1,5 @@
 import { Params } from '@feathersjs/feathers';
-import { EncryptedPresentation, NoPresentation, Presentation, PresentationReceiptInfo } from '@unumid/types';
+import { EncryptedPresentation, Presentation, PresentationReceiptInfo } from '@unumid/types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
@@ -10,7 +10,8 @@ import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
 import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
-import { DemoNoPresentationDto, DemoPresentationDto, VerificationResponse } from '@unumid/demo-types';
+import { DemoNoPresentationDto as DemoNoPresentationDtoDeprecated, DemoPresentationDto as DemoPresentationDtoDeprecated } from '@unumid/demo-types-deprecated';
+import { DemoPresentationDto, VerificationResponse } from '@unumid/demo-types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
@@ -25,7 +26,8 @@ const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPres
     presentationVerifiableCredentials,
     presentationProof,
     presentationPresentationRequestUuid,
-    isVerified
+    isVerified,
+    verifierDid
   } = entity;
 
   return {
@@ -36,7 +38,8 @@ const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPres
       '@context': presentationContext,
       uuid,
       type: presentationType,
-      verifiableCredentials: presentationVerifiableCredentials,
+      verifiableCredential: presentationVerifiableCredentials,
+      verifierDid,
       proof: presentationProof,
       presentationRequestUuid: presentationPresentationRequestUuid
     },
@@ -44,7 +47,7 @@ const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPres
   };
 };
 
-const makeDemoNoPresentationDtoFromEntity = (entity: NoPresentationEntity): DemoNoPresentationDto => {
+const makeDemoNoPresentationDtoFromEntity = (entity: NoPresentationEntity): DemoNoPresentationDtoDeprecated => {
   const {
     uuid,
     createdAt,
@@ -86,8 +89,8 @@ export class PresentationService {
     async create (
       data: PresentationEntity | NoPresentationEntity,
       params?: Params
-    ): Promise<DemoPresentationDto | DemoNoPresentationDto> {
-      let response: DemoPresentationDto | DemoNoPresentationDto;
+    ): Promise<DemoPresentationDto | DemoNoPresentationDtoDeprecated | DemoPresentationDtoDeprecated> { // TODO remove the deprecated types
+      let response: DemoPresentationDto | DemoNoPresentationDtoDeprecated | DemoPresentationDtoDeprecated;
 
       // checking wether we are dealing with a Presentation or NoPresentation entity
       if ((data as PresentationEntity).presentationType && (data as PresentationEntity).presentationType.includes('VerifiablePresentation')) {

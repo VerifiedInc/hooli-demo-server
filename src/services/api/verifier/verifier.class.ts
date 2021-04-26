@@ -91,7 +91,8 @@ const makeVerifierResponseDtoFromEntity = (entity: VerifierEntity): VerifierResp
       name: verifierName,
       customerUuid: verifierCustomerUuid,
       url: verifierUrl,
-      isAuthorized: verifierIsAuthorized
+      isAuthorized: verifierIsAuthorized,
+      versionInfo: [] // TODO need to populate? I don't think so because not something the demo app cares about internally
     }
   };
 };

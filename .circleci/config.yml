@@ -17,18 +17,18 @@ jobs:
       - image: circleci/postgres:9.6.5-alpine-ram
     steps:
       - checkout
-      - restore_cache:
-          key: yarn-v1-{{ checksum "yarn.lock" }}--{{ arch }}
+      # - restore_cache:
+      #     key: yarn-v1-{{ checksum "yarn.lock" }}--{{ arch }}
 
       - restore_cache:
           key: node-v1-{{ checksum "package.json" }}--{{ arch }}
 
-      - run: yarn install
+      - run: npm install
 
-      - save_cache:
-          key: yarn-v1-{{ checksum "yarn.lock" }}--{{ arch }}
-          paths:
-            - .cache/yarn
+      # - save_cache:
+      #     key: yarn-v1-{{ checksum "yarn.lock" }}--{{ arch }}
+      #     paths:
+      #       - .cache/yarn
 
       - save_cache:
           key: node-v1-{{ checksum "package.json" }}--{{ arch }}

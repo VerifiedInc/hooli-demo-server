@@ -1,6 +1,6 @@
 import { PresentationService } from '../../../../src/services/api/presentation/presentation.class';
 import { Application } from '../../../../src/declarations';
-import * as serverSdk from '@unumid/server-sdk';
+import * as serverSdk from '@unumid/server-sdk-deprecated';
 import { CryptoError } from '@unumid/library-crypto';
 
 import {
@@ -15,13 +15,14 @@ import {
   mockNotVerifiedEncryptedPresentation,
   mockNotVerifiedEncryptedNoPresentation,
   dummyAuthToken,
-  dummyPresentationRequestInfo
+  dummyPresentationRequestInfo,
+  dummyVerifierDid
 } from '../../../mocks';
 
-import { Presentation, PresentationReceiptInfo } from '@unumid/types';
-import { CredentialInfo, extractCredentialInfo } from '@unumid/server-sdk';
+import { Presentation, PresentationReceiptInfo } from '@unumid/types-deprecated';
+import { CredentialInfo, extractCredentialInfo } from '@unumid/server-sdk-deprecated';
 import { PresentationEntityOptions } from '../../../../src/entities/Presentation';
-import { VerificationResponse } from '@unumid/demo-types';
+import { VerificationResponse } from '@unumid/demo-types-deprecated';
 import { NoPresentationEntityOptions } from '../../../../src/entities/NoPresentation';
 import logger from '../../../../src/logger';
 import { BadRequest } from '@feathersjs/errors';
@@ -70,7 +71,8 @@ describe('PresentationService', () => {
         presentationVerifiableCredentials: dummyPresentation.verifiableCredentials,
         presentationProof: dummyPresentation.proof,
         presentationPresentationRequestUuid: dummyPresentation.presentationRequestUuid,
-        isVerified: true
+        isVerified: true,
+        verifierDid: dummyVerifierDid
       };
 
       // Expecting the data service to be called with the inputted Presentation attributes.
