@@ -192,10 +192,13 @@ export class PresentationServiceV2 {
 
       if (result.type === 'VerifiablePresentation') {
         try {
-          // Create and persist the Presentation entity
-          const entity = await this.createPresentationEntity(result, params);
+          // Persist the Presentation entity and add the version for the websocket handler
+          const entity = {
+            ...await this.createPresentationEntity(result, params),
+            version: data.version
+          };
 
-          // Pass the Presentation entity to the websocket service for the web client's consumption
+          // Pass the Presentation entity with version to the websocket service for the web client's consumption
           presentationWebsocketService.create(entity);
         } catch (e) {
           logger.error('PresentationService.create caught an error thrown by PresentationService.createPresentationEntity', e);

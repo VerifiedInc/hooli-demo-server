@@ -12,7 +12,8 @@ import { PresentationRequestEntity } from '../../../entities/PresentationRequest
 import { CryptoError } from '@unumid/library-crypto';
 // import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 import { DecryptedPresentation, verifyPresentation, extractCredentialInfo, CredentialInfo } from '@unumid/server-sdk-deprecated';
-import { VerificationResponse, WithVersion } from '@unumid/demo-types';
+import { WithVersion } from '@unumid/demo-types';
+import { VerificationResponse } from '@unumid/demo-types-deprecated';
 import { lt } from 'semver';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -194,8 +195,11 @@ export class PresentationService {
 
         if (result.type === 'VerifiablePresentation') {
           try {
-            // Create and persist the Presentation entity
-            const entity = await this.createPresentationEntity(result, params);
+            // Persist the Presentation entity and add the version for the websocket handler
+            const entity = {
+              ...await this.createPresentationEntity(result, params),
+              version: data.version
+            };
 
             // Pass the Presentation entity to the websocket service for the web client's consumption
             presentationWebsocketService.create(entity);
@@ -208,7 +212,7 @@ export class PresentationService {
             // Create and persist the NoPresentation entity
             const entity = await this.createNoPresentationEntity(result, params);
 
-            // Pass the NoPresentation entity to the websocket service for the web client's consumption
+            // Pass the Presentation entity with version to the websocket service for the web client's consumption
             presentationWebsocketService.create(entity);
           } catch (e) {
             logger.error('PresentationService.create caught an error thrown by PresentationService.createNoPresentationEntity', e);
