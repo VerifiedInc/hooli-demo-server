@@ -20,4 +20,4 @@ COPY ./ /app/
 
 RUN yarn compile
 
-CMD ["yarn", "start"]
+CMD ["npm", "start"]
