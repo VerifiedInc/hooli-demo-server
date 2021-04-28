@@ -12,7 +12,8 @@ import { PresentationRequestEntity } from '../../../entities/PresentationRequest
 import { CryptoError } from '@unumid/library-crypto';
 // import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 import { DecryptedPresentation, verifyPresentation, extractCredentialInfo, CredentialInfo } from '@unumid/server-sdk-deprecated';
-import { VerificationResponse, WithVersion } from '@unumid/demo-types';
+import { WithVersion } from '@unumid/demo-types';
+import { VerificationResponse } from '@unumid/demo-types-deprecated';
 import { lt } from 'semver';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -76,25 +77,6 @@ const makeNoPresentationEntityOptionsFromNoPresentation = (
   };
 };
 
-// const makeNoPresentationEntityOptionsFromNoPresentation = (
-//   { presentation, isVerified }: PresentationWithVerification
-// ): NoPresentationEntityOptions => {
-//   const {
-//     type: npType,
-//     proof: npProof,
-//     // holder: npHolder,
-//     presentationRequestUuid: npPresentationRequestUuid
-//   } = presentation;
-
-//   return {
-//     npType,
-//     npProof,
-//     npHolder: undefined,
-//     npPresentationRequestUuid,
-//     isVerified
-//   };
-// };
-
 export class PresentationService {
   app: Application;
   options: ServiceOptions;
@@ -131,30 +113,6 @@ export class PresentationService {
       throw e;
     }
   }
-
-  // async createNoPresentationEntity (noPresentation: DecryptedPresentation, params?: Params): Promise<NoPresentationEntity> {
-  //   const decryptedPresentation: Presentation = noPresentation.presentation as Presentation;
-  //   const noPresentationWithVerification: PresentationWithVerification = { isVerified: noPresentation.isVerified, presentation: decryptedPresentation };
-  //   const options = makeNoPresentationEntityOptionsFromNoPresentation(noPresentationWithVerification);
-  //   try {
-  //     return this.noPresentationDataService.create(options, params);
-  //   } catch (e) {
-  //     logger.error('PresentationService.crateNoPresentationEntity caught an error thrown by NoPresentationDataService.create', e);
-  //     throw e;
-  //   }
-  // }
-
-  // async createPresentationEntity (presentation: DecryptedPresentation, params?: Params): Promise<PresentationEntity> {
-  //   const decryptedPresentation: Presentation = presentation.presentation as Presentation;
-  //   const presentationWithVerification: PresentationWithVerification = { isVerified: presentation.isVerified, presentation: decryptedPresentation };
-  //   const options = makePresentationEntityOptionsFromPresentation(presentationWithVerification);
-  //   try {
-  //     return this.presentationDataService.create(options, params);
-  //   } catch (e) {
-  //     logger.error('PresentationService.createPresentationEntity caught an error thrown by PresentationDataService.create', e);
-  //     throw e;
-  //   }
-  // }
 
   async create (
     data: WithVersion<EncryptedPresentation>,
@@ -194,8 +152,11 @@ export class PresentationService {
 
         if (result.type === 'VerifiablePresentation') {
           try {
-            // Create and persist the Presentation entity
-            const entity = await this.createPresentationEntity(result, params);
+            // Persist the Presentation entity and add the version for the websocket handler
+            const entity = {
+              ...await this.createPresentationEntity(result, params),
+              version: data.version
+            };
 
             // Pass the Presentation entity to the websocket service for the web client's consumption
             presentationWebsocketService.create(entity);
@@ -208,7 +169,7 @@ export class PresentationService {
             // Create and persist the NoPresentation entity
             const entity = await this.createNoPresentationEntity(result, params);
 
-            // Pass the NoPresentation entity to the websocket service for the web client's consumption
+            // Pass the Presentation entity with version to the websocket service for the web client's consumption
             presentationWebsocketService.create(entity);
           } catch (e) {
             logger.error('PresentationService.create caught an error thrown by PresentationService.createNoPresentationEntity', e);
@@ -231,54 +192,8 @@ export class PresentationService {
         logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
 
         return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
-      } else { // request was made with version header 2.0.0+
-        // const PresentationServiceV2 = this.app.service('presentationServiceV2');
+      } else { // request was made with version header 2.0.0+, use the V2 service
         return await presentationServiceV2.create(data, params);
-        // // TODO make another service which is just called here, presentationV2 or something like that.
-        // const response = await verifyPresentation(authToken, data.encryptedPresentation, verifier.verifierDid, verifier.encryptionPrivateKey, data.presentationRequestInfo);
-        // const result: DecryptedPresentation = response.body;
-
-        // logger.info(`response from server sdk ${JSON.stringify(result)}`);
-
-        // // need to update the verifier auth token
-        // await verifierDataService.patch(verifier.uuid, { authToken: response.authToken });
-
-        // // return early if the presentation could not be verified
-        // if (!result.isVerified) {
-        //   logger.warn(`Presentation verification failed: ${result.message}`);
-        //   throw new BadRequest(`Verification failed: ${result.message ? result.message : ''}`);
-        // }
-
-        // if (result.type === 'VerifiablePresentation') {
-        //   try {
-        //   // Create and persist the Presentation entity
-        //     const entity = await this.createPresentationEntity(result, params);
-
-        //     // Pass the Presentation entity to the websocket service for the web client's consumption
-        //     presentationWebsocketService.create(entity);
-        //   } catch (e) {
-        //     logger.error('PresentationService.create caught an error thrown by PresentationService.createPresentationEntity', e);
-        //     throw e;
-        //   }
-        // } else {
-        //   logger.info('Presentation was declined, not storing.');
-        // }
-
-        // // extract the relevant credential info to send back to UnumID SaaS for analytics.
-        // const decryptedPresentation: Presentation = result.presentation as Presentation;
-        // const credentialInfo: CredentialInfo = extractCredentialInfo((decryptedPresentation));
-
-        // const presentationReceiptInfo: PresentationReceiptInfo = {
-        //   subjectDid: credentialInfo.subjectDid,
-        //   credentialTypes: credentialInfo.credentialTypes,
-        //   verifierDid: verifier.verifierDid,
-        //   holderApp: data.presentationRequestInfo.presentationRequest.holderAppUuid,
-        //   issuers: result.type === 'VerifiablePresentation' ? presentationRequest.prIssuerInfo : undefined
-        // };
-
-        // logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
-
-        // return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
       }
     } catch (error) {
       if (error instanceof CryptoError) {
