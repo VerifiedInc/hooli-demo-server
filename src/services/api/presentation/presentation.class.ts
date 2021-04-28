@@ -235,54 +235,8 @@ export class PresentationService {
         logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
 
         return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
-      } else { // request was made with version header 2.0.0+
-        // const PresentationServiceV2 = this.app.service('presentationServiceV2');
+      } else { // request was made with version header 2.0.0+, use the V2 service
         return await presentationServiceV2.create(data, params);
-        // // TODO make another service which is just called here, presentationV2 or something like that.
-        // const response = await verifyPresentation(authToken, data.encryptedPresentation, verifier.verifierDid, verifier.encryptionPrivateKey, data.presentationRequestInfo);
-        // const result: DecryptedPresentation = response.body;
-
-        // logger.info(`response from server sdk ${JSON.stringify(result)}`);
-
-        // // need to update the verifier auth token
-        // await verifierDataService.patch(verifier.uuid, { authToken: response.authToken });
-
-        // // return early if the presentation could not be verified
-        // if (!result.isVerified) {
-        //   logger.warn(`Presentation verification failed: ${result.message}`);
-        //   throw new BadRequest(`Verification failed: ${result.message ? result.message : ''}`);
-        // }
-
-        // if (result.type === 'VerifiablePresentation') {
-        //   try {
-        //   // Create and persist the Presentation entity
-        //     const entity = await this.createPresentationEntity(result, params);
-
-        //     // Pass the Presentation entity to the websocket service for the web client's consumption
-        //     presentationWebsocketService.create(entity);
-        //   } catch (e) {
-        //     logger.error('PresentationService.create caught an error thrown by PresentationService.createPresentationEntity', e);
-        //     throw e;
-        //   }
-        // } else {
-        //   logger.info('Presentation was declined, not storing.');
-        // }
-
-        // // extract the relevant credential info to send back to UnumID SaaS for analytics.
-        // const decryptedPresentation: Presentation = result.presentation as Presentation;
-        // const credentialInfo: CredentialInfo = extractCredentialInfo((decryptedPresentation));
-
-        // const presentationReceiptInfo: PresentationReceiptInfo = {
-        //   subjectDid: credentialInfo.subjectDid,
-        //   credentialTypes: credentialInfo.credentialTypes,
-        //   verifierDid: verifier.verifierDid,
-        //   holderApp: data.presentationRequestInfo.presentationRequest.holderAppUuid,
-        //   issuers: result.type === 'VerifiablePresentation' ? presentationRequest.prIssuerInfo : undefined
-        // };
-
-        // logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
-
-        // return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
       }
     } catch (error) {
       if (error instanceof CryptoError) {
