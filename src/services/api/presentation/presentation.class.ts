@@ -1,5 +1,5 @@
 import { Params } from '@feathersjs/feathers';
-// import { EncryptedPresentation, Presentation, PresentationReceiptInfo } from '@unumid/types';
+import { VerificationResponse } from '@unumid/types';
 import { NoPresentation, Presentation, EncryptedPresentation, PresentationReceiptInfo } from '@unumid/types-deprecated';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
@@ -13,7 +13,8 @@ import { CryptoError } from '@unumid/library-crypto';
 // import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 import { DecryptedPresentation, verifyPresentation, extractCredentialInfo, CredentialInfo } from '@unumid/server-sdk-deprecated';
 import { WithVersion } from '@unumid/demo-types';
-import { VerificationResponse } from '@unumid/demo-types-deprecated';
+import { VerificationResponse as VerificationResponseDeprecated } from '@unumid/demo-types-deprecated';
+
 import { lt } from 'semver';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -160,7 +161,7 @@ export class PresentationService {
   async create (
     data: WithVersion<EncryptedPresentation>,
     params?: Params
-  ): Promise<VerificationResponse> {
+  ): Promise<VerificationResponse | VerificationResponseDeprecated> {
     try {
       const presentationRequestService = this.app.service('presentationRequestData');
       const presentationRequest: PresentationRequestEntity = await presentationRequestService.findOne({ prUuid: data.presentationRequestInfo.presentationRequest.uuid });
@@ -236,7 +237,7 @@ export class PresentationService {
 
         return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
       } else { // request was made with version header 2.0.0+, use the V2 service
-        return await presentationServiceV2.create(data, params);
+        return await (presentationServiceV2.create(data, params) as Promise<VerificationResponse>);
       }
     } catch (error) {
       if (error instanceof CryptoError) {

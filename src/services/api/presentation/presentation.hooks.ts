@@ -4,6 +4,7 @@ import { EncryptedPresentation, Presentation as PresentationDeprecated, NoPresen
 // import { Presentation, EncryptedPresentation } from '@unumid/types';
 import { WithVersion } from '@unumid/demo-types';
 import { valid } from 'semver';
+import logger from '../../../logger';
 
 export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   const { data, params } = ctx;
@@ -28,6 +29,7 @@ export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   }
 
   data.version = params.headers.version;
+  logger.info(`Presentation request made with version header ${data.version}`);
 
   params.isValidated = true;
 };

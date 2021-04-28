@@ -1,5 +1,5 @@
 import { Params } from '@feathersjs/feathers';
-import { EncryptedPresentation, Presentation, PresentationReceiptInfo } from '@unumid/types';
+import { EncryptedPresentation, Presentation, PresentationReceiptInfo, VerificationResponse } from '@unumid/types';
 import { NoPresentation as NoPresentationDeprecated, Presentation as PresentationDeprecated } from '@unumid/types-deprecated';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
@@ -12,7 +12,7 @@ import { PresentationRequestEntity } from '../../../entities/PresentationRequest
 import { CryptoError } from '@unumid/library-crypto';
 import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 import { DecryptedPresentation as DecryptedPresentationDeprecated, verifyPresentation as verifyPresentationDeprecated } from '@unumid/server-sdk-deprecated';
-import { VerificationResponse, WithVersion } from '@unumid/demo-types';
+import { WithVersion } from '@unumid/demo-types';
 import { lt } from 'semver';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -217,12 +217,13 @@ export class PresentationServiceV2 {
         credentialTypes: credentialInfo.credentialTypes,
         verifierDid: verifier.verifierDid,
         holderApp: data.presentationRequestInfo.presentationRequest.holderAppUuid,
+        presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid,
         issuers: result.type === 'VerifiablePresentation' ? presentationRequest.prIssuerInfo : undefined
       };
 
       logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
 
-      return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
+      return { isVerified: true, type: result.type, presentationReceiptInfo };
     } catch (error) {
       if (error instanceof CryptoError) {
         logger.error('Crypto error handling encrypted presentation', error);
