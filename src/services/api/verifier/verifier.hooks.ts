@@ -65,7 +65,7 @@ export const registerVerifierHook: Hook<RegisterVerifierData> = async (ctx) => {
   let response;
 
   try {
-    response = await registerVerifier(name, customerUuid, url, apiKey);
+    response = await registerVerifier(name, customerUuid, url, apiKey, versionInfo);
   } catch (e) {
     logger.error('registerVerifierHook caught an error thrown by the server sdk', e);
     throw new GeneralError('Error registering verifier.');
@@ -95,12 +95,6 @@ export const registerVerifierHook: Hook<RegisterVerifierData> = async (ctx) => {
     customerUuid,
     url,
     versionInfo
-    // versionInfo: [{
-    //   target: {
-    //     version: '1.0.0'
-    //   },
-    //   sdkVersion: '1.0.0'
-    // }]
   };
 
   const newData: VerifierRequestDto = {
