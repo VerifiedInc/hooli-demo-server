@@ -1,4 +1,5 @@
 import { Entity, Property } from '@mikro-orm/core';
+import { VersionInfo } from '@unumid/types';
 // import { VersionInfo } from '@unumid/demo-types/node_modules/@unumid/types';
 
 import { BaseEntity, BaseEntityOptions } from './BaseEntity';
@@ -16,7 +17,7 @@ export interface VerifierEntityOptions extends BaseEntityOptions {
   verifierCustomerUuid: string;
   verifierUrl: string;
   verifierIsAuthorized: boolean;
-  // verifierVersionInfo: VersionInfo[];
+  verifierVersionInfo: VersionInfo[];
 }
 
 @Entity({ tableName: 'Verifier' })
@@ -57,8 +58,8 @@ export class VerifierEntity extends BaseEntity {
   @Property()
   verifierIsAuthorized: boolean;
 
-  // @Property()
-  // verifierVersionInfo: VersionInfo[];
+  @Property()
+  verifierVersionInfo: VersionInfo[];
 
   constructor (options: VerifierEntityOptions) {
     super(options);
@@ -74,8 +75,8 @@ export class VerifierEntity extends BaseEntity {
       verifierName,
       verifierCustomerUuid,
       verifierUrl,
-      verifierIsAuthorized
-      // VersionInfo
+      verifierIsAuthorized,
+      verifierVersionInfo
     } = options;
 
     this.apiKey = apiKey;
@@ -90,5 +91,6 @@ export class VerifierEntity extends BaseEntity {
     this.verifierCustomerUuid = verifierCustomerUuid;
     this.verifierUrl = verifierUrl;
     this.verifierIsAuthorized = verifierIsAuthorized;
+    this.verifierVersionInfo = verifierVersionInfo;
   }
 }

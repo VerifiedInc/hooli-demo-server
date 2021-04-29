@@ -95,6 +95,12 @@ export const registerVerifierHook: Hook<RegisterVerifierData> = async (ctx) => {
     customerUuid,
     url,
     versionInfo
+    // versionInfo: [{
+    //   target: {
+    //     version: '1.0.0'
+    //   },
+    //   sdkVersion: '1.0.0'
+    // }]
   };
 
   const newData: VerifierRequestDto = {

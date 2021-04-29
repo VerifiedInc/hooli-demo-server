@@ -3,13 +3,8 @@ import { EncryptedPresentation, Presentation, PresentationReceiptInfo, Verificat
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
-import { NoPresentationEntity, NoPresentationEntityOptions } from '../../../entities/NoPresentation';
-import { PresentationEntity, PresentationEntityOptions } from '../../../entities/Presentation';
-import logger from '../../../logger';
-import { BadRequest, NotFound } from '@feathersjs/errors';
-import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
-import { CryptoError } from '@unumid/library-crypto';
-import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
+import { NoPresentationEntity } from '../../../entities/NoPresentation';
+import { PresentationEntity } from '../../../entities/Presentation';
 import { DemoNoPresentationDto as DemoNoPresentationDtoDeprecated, DemoPresentationDto as DemoPresentationDtoDeprecated } from '@unumid/demo-types-deprecated';
 import { DemoPresentationDto, WithVersion } from '@unumid/demo-types';
 import { lt } from 'semver';
