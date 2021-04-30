@@ -18,16 +18,6 @@ import { lt } from 'semver';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
 
-export interface PresentationWithVerificationDeprecated {
-  presentation: PresentationDeprecated;
-  isVerified: boolean;
-}
-
-export interface NoPresentationWithVerificationDeprecated {
-  noPresentation: NoPresentationDeprecated;
-  isVerified: boolean;
-}
-
 export interface PresentationWithVerification {
   presentation: Presentation;
   isVerified: boolean;
@@ -57,92 +47,16 @@ const makePresentationEntityOptionsFromPresentation = (
   };
 };
 
-const makeNoPresentationEntityOptionsFromNoPresentationDeprecated = (
-  { noPresentation, isVerified }: NoPresentationWithVerificationDeprecated
-): NoPresentationEntityOptions => {
-  const {
-    type: npType,
-    proof: npProof,
-    holder: npHolder,
-    presentationRequestUuid: npPresentationRequestUuid
-  } = noPresentation;
-
-  return {
-    npType,
-    npProof,
-    npHolder,
-    npPresentationRequestUuid,
-    isVerified
-  };
-};
-
-// const makeNoPresentationEntityOptionsFromNoPresentation = (
-//   { presentation, isVerified }: PresentationWithVerification
-// ): NoPresentationEntityOptions => {
-//   const {
-//     type: npType,
-//     proof: npProof,
-//     // holder: npHolder,
-//     presentationRequestUuid: npPresentationRequestUuid
-//   } = presentation;
-
-//   return {
-//     npType,
-//     npProof,
-//     npHolder: undefined,
-//     npPresentationRequestUuid,
-//     isVerified
-//   };
-// };
-
 export class PresentationServiceV2 {
   app: Application;
   options: ServiceOptions;
   presentationDataService: MikroOrmService<PresentationEntity>;
-  noPresentationDataService: MikroOrmService<NoPresentationEntity>;
 
   constructor (options: ServiceOptions = {}, app: Application) {
     this.options = options;
     this.app = app;
     this.presentationDataService = app.service('presentationData');
-    this.noPresentationDataService = app.service('noPresentationData');
   }
-
-  async createPresentationEntityDeprecated (presentation: DecryptedPresentationDeprecated, params?: Params): Promise<PresentationEntity> {
-    const decryptedPresentation: PresentationDeprecated = presentation.presentation as PresentationDeprecated;
-    const presentationWithVerification: PresentationWithVerificationDeprecated = { isVerified: presentation.isVerified, presentation: decryptedPresentation };
-    const options = makePresentationEntityOptionsFromPresentation(presentationWithVerification);
-    try {
-      return this.presentationDataService.create(options, params);
-    } catch (e) {
-      logger.error('PresentationService.createPresentationEntity caught an error thrown by PresentationDataService.create', e);
-      throw e;
-    }
-  }
-
-  async createNoPresentationEntityDeprecated (noPresentation: DecryptedPresentationDeprecated, params?: Params): Promise<NoPresentationEntity> {
-    const decryptedPresentation: NoPresentationDeprecated = noPresentation.presentation as NoPresentationDeprecated;
-    const noPresentationWithVerification: NoPresentationWithVerificationDeprecated = { isVerified: noPresentation.isVerified, noPresentation: decryptedPresentation };
-    const options = makeNoPresentationEntityOptionsFromNoPresentationDeprecated(noPresentationWithVerification);
-    try {
-      return this.noPresentationDataService.create(options, params);
-    } catch (e) {
-      logger.error('PresentationService.crateNoPresentationEntity caught an error thrown by NoPresentationDataService.create', e);
-      throw e;
-    }
-  }
-
-  // async createNoPresentationEntity (noPresentation: DecryptedPresentation, params?: Params): Promise<NoPresentationEntity> {
-  //   const decryptedPresentation: Presentation = noPresentation.presentation as Presentation;
-  //   const noPresentationWithVerification: PresentationWithVerification = { isVerified: noPresentation.isVerified, presentation: decryptedPresentation };
-  //   const options = makeNoPresentationEntityOptionsFromNoPresentation(noPresentationWithVerification);
-  //   try {
-  //     return this.noPresentationDataService.create(options, params);
-  //   } catch (e) {
-  //     logger.error('PresentationService.crateNoPresentationEntity caught an error thrown by NoPresentationDataService.create', e);
-  //     throw e;
-  //   }
-  // }
 
   async createPresentationEntity (presentation: DecryptedPresentation, params?: Params): Promise<PresentationEntity> {
     const decryptedPresentation: Presentation = presentation.presentation as PresentationDeprecated;
