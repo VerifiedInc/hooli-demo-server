@@ -46,104 +46,104 @@ jobs:
           name: Jest Tests
           command: npm run test
 
-  build-and-push-image:
-    executor: aws-cli/default
-    parameters:
-      reg:
-        type: string
-        default: "248606629437.dkr.ecr.us-west-2.amazonaws.com"
-      repo:
-        type: string
-    steps:
-      - checkout
-      - aws-cli/setup
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          command: |
-            echo Logging in to Amazon ECR...
-            $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-            echo Building the Docker image...
-            DOCKER_BUILDKIT=1 docker build --ssh github="$HOME/.ssh/id_rsa" -t ${CIRCLE_SHA1} .
-            docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:dev-latest
-            docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
-            echo Pushing the Docker image...
-            docker push << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
-            docker push << parameters.reg >>/<< parameters.repo >>:dev-latest
-          name: Update container image
+  # build-and-push-image:
+  #   executor: aws-cli/default
+  #   parameters:
+  #     reg:
+  #       type: string
+  #       default: "248606629437.dkr.ecr.us-west-2.amazonaws.com"
+  #     repo:
+  #       type: string
+  #   steps:
+  #     - checkout
+  #     - aws-cli/setup
+  #     - setup_remote_docker:
+  #         version: 19.03.13
+  #     - run:
+  #         command: |
+  #           echo Logging in to Amazon ECR...
+  #           $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+  #           echo Building the Docker image...
+  #           DOCKER_BUILDKIT=1 docker build --ssh github="$HOME/.ssh/id_rsa" -t ${CIRCLE_SHA1} .
+  #           docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:dev-latest
+  #           docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
+  #           echo Pushing the Docker image...
+  #           docker push << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
+  #           docker push << parameters.reg >>/<< parameters.repo >>:dev-latest
+  #         name: Update container image
 
-  build-and-push-image-sandbox:
-    executor: aws-cli/default
-    parameters:
-      reg:
-        type: string
-        default: "248606629437.dkr.ecr.us-west-2.amazonaws.com"
-      repo:
-        type: string
-    steps:
-      - checkout
-      - aws-cli/setup
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          command: |
-            echo Logging in to Amazon ECR...
-            $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-            echo Building the Docker image...
-            DOCKER_BUILDKIT=1 docker build --ssh github="$HOME/.ssh/id_rsa" -t ${CIRCLE_SHA1} .
-            docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:sandbox-latest
-            docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_TAG}"
-            echo Pushing the Docker image...
-            docker push << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_TAG}"
-            docker push << parameters.reg >>/<< parameters.repo >>:sandbox-latest
-          name: Update container image
+  # build-and-push-image-sandbox:
+  #   executor: aws-cli/default
+  #   parameters:
+  #     reg:
+  #       type: string
+  #       default: "248606629437.dkr.ecr.us-west-2.amazonaws.com"
+  #     repo:
+  #       type: string
+  #   steps:
+  #     - checkout
+  #     - aws-cli/setup
+  #     - setup_remote_docker:
+  #         version: 19.03.13
+  #     - run:
+  #         command: |
+  #           echo Logging in to Amazon ECR...
+  #           $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+  #           echo Building the Docker image...
+  #           DOCKER_BUILDKIT=1 docker build --ssh github="$HOME/.ssh/id_rsa" -t ${CIRCLE_SHA1} .
+  #           docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:sandbox-latest
+  #           docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_TAG}"
+  #           echo Pushing the Docker image...
+  #           docker push << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_TAG}"
+  #           docker push << parameters.reg >>/<< parameters.repo >>:sandbox-latest
+  #         name: Update container image
 
-  deploy-image:
-    parameters:
-      cluster-name:
-        type: string
-        default: "dev-customer-cluster"
-      repo:
-        type: string
-      deployment:
-        type: string
+  # deploy-image:
+  #   parameters:
+  #     cluster-name:
+  #       type: string
+  #       default: "dev-customer-cluster"
+  #     repo:
+  #       type: string
+  #     deployment:
+  #       type: string
 
-    executor: aws-eks/python3
-    steps:
-      - kubernetes/install
-      - aws-eks/update-kubeconfig-with-authenticator:
-          install-kubectl: true
-          aws-region: ${AWS_REGION}
-          cluster-name: << parameters.cluster-name >>
-      - run:
-          command: |
-            kubectl set image deployment/<< parameters.deployment >> << parameters.deployment >>=${AWS_ECR_URL}/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_PREVIOUS_BUILD_NUM}"
-          name: Update container image
+  #   executor: aws-eks/python3
+  #   steps:
+  #     - kubernetes/install
+  #     - aws-eks/update-kubeconfig-with-authenticator:
+  #         install-kubectl: true
+  #         aws-region: ${AWS_REGION}
+  #         cluster-name: << parameters.cluster-name >>
+  #     - run:
+  #         command: |
+  #           kubectl set image deployment/<< parameters.deployment >> << parameters.deployment >>=${AWS_ECR_URL}/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_PREVIOUS_BUILD_NUM}"
+  #         name: Update container image
 
-  deploy-image-sandbox:
-    parameters:
-      cluster-name:
-        type: string
-        default: "sandbox-customer-cluster"
-      repo:
-        type: string
-      deployment:
-        type: string
-      namespace:
-        type: string
-        default: demos
+  # deploy-image-sandbox:
+  #   parameters:
+  #     cluster-name:
+  #       type: string
+  #       default: "sandbox-customer-cluster"
+  #     repo:
+  #       type: string
+  #     deployment:
+  #       type: string
+  #     namespace:
+  #       type: string
+  #       default: demos
 
-    executor: aws-eks/python3
-    steps:
-      - kubernetes/install
-      - aws-eks/update-kubeconfig-with-authenticator:
-          install-kubectl: true
-          aws-region: ${AWS_REGION}
-          cluster-name: << parameters.cluster-name >>
-      - run:
-          command: |
-            kubectl set image deployment/<< parameters.deployment >> << parameters.deployment >>=${AWS_ECR_URL}/<< parameters.repo >>:"${CIRCLE_TAG}" -n << parameters.namespace >>
-          name: Update container image
+  #   executor: aws-eks/python3
+  #   steps:
+  #     - kubernetes/install
+  #     - aws-eks/update-kubeconfig-with-authenticator:
+  #         install-kubectl: true
+  #         aws-region: ${AWS_REGION}
+  #         cluster-name: << parameters.cluster-name >>
+  #     - run:
+  #         command: |
+  #           kubectl set image deployment/<< parameters.deployment >> << parameters.deployment >>=${AWS_ECR_URL}/<< parameters.repo >>:"${CIRCLE_TAG}" -n << parameters.namespace >>
+  #         name: Update container image
 
 workflows:
   build-and-deploy-release:
@@ -155,28 +155,28 @@ workflows:
             branches:
               ignore: /.*/
 
-      - build-and-push-image-sandbox:
-          requires:
-            - test
-          context: AWS-Dev
-          repo: acme-demo-verifier-server
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+      # - build-and-push-image-sandbox:
+      #     requires:
+      #       - test
+      #     context: AWS-Dev
+      #     repo: acme-demo-verifier-server
+      #     filters:
+      #       tags:
+      #         only: /^v.*/
+      #       branches:
+      #         ignore: /.*/
 
-      - deploy-image-sandbox:
-          requires:
-            - build-and-push-image-sandbox
-          context: AWS-Dev
-          repo: acme-demo-verifier-server
-          deployment: acme-demo-verifier-server
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+      # - deploy-image-sandbox:
+      #     requires:
+      #       - build-and-push-image-sandbox
+      #     context: AWS-Dev
+      #     repo: acme-demo-verifier-server
+      #     deployment: acme-demo-verifier-server
+      #     filters:
+      #       tags:
+      #         only: /^v.*/
+      #       branches:
+      #         ignore: /.*/
 
   lint-and-test:
     jobs:
@@ -187,6 +187,7 @@ workflows:
                 - main
                 - test-circleci
                 - sandbox
+
   build-and-deploy:
     jobs:
       - test:
@@ -196,26 +197,26 @@ workflows:
                 - main
                 - test-circleci
 
-      - build-and-push-image:
-          requires:
-            - test
-          context: AWS-Dev
-          repo: acme-demo-verifier-server
-          filters:
-            branches:
-              only:
-                - main
-                - test-circleci
+      # - build-and-push-image:
+      #     requires:
+      #       - test
+      #     context: AWS-Dev
+      #     repo: acme-demo-verifier-server
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      #           - test-circleci
 
-      - deploy-image:
-          requires:
-            - build-and-push-image
-          context: AWS-Dev
-          repo: acme-demo-verifier-server
-          deployment: acme-demo-verifier-server
-          filters:
-            branches:
-              only:
-                - main
-                - test-circleci
+      # - deploy-image:
+      #     requires:
+      #       - build-and-push-image
+      #     context: AWS-Dev
+      #     repo: acme-demo-verifier-server
+      #     deployment: acme-demo-verifier-server
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      #           - test-circleci
 
