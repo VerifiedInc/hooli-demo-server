@@ -99,10 +99,11 @@ describe('verifier service hooks', () => {
           customerUuid: v4(),
           name: 'test verifier',
           apiKey: 'dummy api key',
-          url: 'https://verifier.unum.id/presentation'
+          url: 'https://verifier.unum.id/presentation',
+          versionInfo: []
         },
-        params: {}
-      } as HookContext;
+        params: { headers: { version: '1.0.0' } }
+      } as unknown as HookContext;
       validateVerifierCreateOptions(ctx);
       expect(ctx.params.isValidated).toBe(true);
     });
@@ -138,7 +139,8 @@ describe('verifier service hooks', () => {
           customerUuid,
           name: 'test verifier',
           apiKey: 'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
-          url: 'https://verifier-api.demo.unum.id/presentation'
+          url: 'https://verifier-api.demo.unum.id/presentation',
+          versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
         },
         params: { isValidated: true }
       } as unknown as HookContext;
@@ -150,7 +152,8 @@ describe('verifier service hooks', () => {
         'test verifier',
         customerUuid,
         'https://verifier-api.demo.unum.id/presentation',
-        'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k='
+        'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
+        [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
       );
     });
 
@@ -184,7 +187,8 @@ describe('verifier service hooks', () => {
           customerUuid,
           name: 'test verifier',
           apiKey: 'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
-          url: 'https://verifier-api.demo.unum.id/presentation'
+          url: 'https://verifier-api.demo.unum.id/presentation',
+          versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
         },
         params: { isValidated: true }
       } as unknown as HookContext;

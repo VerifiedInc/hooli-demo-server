@@ -4,13 +4,14 @@ import { registerVerifier } from '@unumid/server-sdk';
 
 import { VerifierRequestDto } from './verifier.class';
 import logger from '../../../logger';
-import { Verifier } from '@unumid/types';
+import { Verifier, VersionInfo } from '@unumid/types';
 
 interface VerifierCreateOptions {
   apiKey: string;
   customerUuid: string;
   name: string;
   url: string;
+  versionInfo: VersionInfo[];
 }
 
 export const validateVerifierCreateOptions: Hook<VerifierCreateOptions> = (ctx) => {
@@ -20,7 +21,7 @@ export const validateVerifierCreateOptions: Hook<VerifierCreateOptions> = (ctx) 
     throw new BadRequest('data is required.');
   }
 
-  const { apiKey, customerUuid, name, url } = data;
+  const { apiKey, customerUuid, name, url, versionInfo } = data;
 
   if (!apiKey) {
     throw new BadRequest('apiKey is required.');
@@ -36,6 +37,10 @@ export const validateVerifierCreateOptions: Hook<VerifierCreateOptions> = (ctx) 
 
   if (!url) {
     throw new BadRequest('url is required.');
+  }
+
+  if (!versionInfo) {
+    throw new BadRequest('versionInfo is required.');
   }
 
   ctx.params.isValidated = true;
@@ -55,12 +60,12 @@ export const registerVerifierHook: Hook<RegisterVerifierData> = async (ctx) => {
     throw new GeneralError('Hook context has not been validated. Did you forget to run the validateVerifierCreateOptions hook before this one?');
   }
 
-  const { apiKey, customerUuid, name, url } = ctx.data;
+  const { apiKey, customerUuid, name, url, versionInfo } = ctx.data;
 
   let response;
 
   try {
-    response = await registerVerifier(name, customerUuid, url, apiKey);
+    response = await registerVerifier(name, customerUuid, url, apiKey, versionInfo);
   } catch (e) {
     logger.error('registerVerifierHook caught an error thrown by the server sdk', e);
     throw new GeneralError('Error registering verifier.');
@@ -88,7 +93,8 @@ export const registerVerifierHook: Hook<RegisterVerifierData> = async (ctx) => {
     isAuthorized,
     name,
     customerUuid,
-    url
+    url,
+    versionInfo
   };
 
   const newData: VerifierRequestDto = {
