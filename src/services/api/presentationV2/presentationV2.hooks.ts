@@ -36,17 +36,6 @@ export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   params.isValidated = true;
 };
 
-// export const checkVersion: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
-//   const { params, data } = ctx;
-//   if (!params.headers || !params.headers.version) {
-//     throw new BadRequest('version header is required.');
-//   }
-
-//   data?.version = ;
-
-//   ctx.params.isValidated = true;
-// };
-
 export interface DataWithVerification {
   presentation: Presentation | PresentationDeprecated | NoPresentationDeprecated;
   isVerified: boolean;

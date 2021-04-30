@@ -1,9 +1,9 @@
 import { Hook } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
 import { EncryptedPresentation, Presentation as PresentationDeprecated, NoPresentation as NoPresentationDeprecated } from '@unumid/types-deprecated';
-// import { Presentation, EncryptedPresentation } from '@unumid/types';
 import { WithVersion } from '@unumid/demo-types';
 import { valid } from 'semver';
+import logger from '../../../logger';
 
 export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   const { data, params } = ctx;
@@ -28,20 +28,10 @@ export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   }
 
   data.version = params.headers.version;
+  logger.info(`Presentation request made with version header ${data.version}`);
 
   params.isValidated = true;
 };
-
-// export const checkVersion: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
-//   const { params, data } = ctx;
-//   if (!params.headers || !params.headers.version) {
-//     throw new BadRequest('version header is required.');
-//   }
-
-//   data?.version = ;
-
-//   ctx.params.isValidated = true;
-// };
 
 export interface DataWithVerification {
   presentation: PresentationDeprecated | NoPresentationDeprecated;

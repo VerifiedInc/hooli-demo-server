@@ -10,7 +10,6 @@ import logger from '../../../logger';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
-// import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 import { DecryptedPresentation, verifyPresentation, extractCredentialInfo, CredentialInfo } from '@unumid/server-sdk-deprecated';
 import { WithVersion } from '@unumid/demo-types';
 import { VerificationResponse as VerificationResponseDeprecated } from '@unumid/demo-types-deprecated';
@@ -194,7 +193,11 @@ export class PresentationService {
 
         return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
       } else { // request was made with version header 2.0.0+, use the V2 service
-        return await (presentationServiceV2.create(data, params) as Promise<VerificationResponse>);
+        const newParams = {
+          ...params,
+          headers: { ...params?.headers, version: data.version }
+        };
+        return await (presentationServiceV2.create(data, newParams) as Promise<VerificationResponse>);
       }
     } catch (error) {
       if (error instanceof CryptoError) {
