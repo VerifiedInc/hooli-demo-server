@@ -10,6 +10,7 @@ export interface PresentationEntityOptions extends BaseEntityOptions {
   presentationProof: Proof;
   presentationPresentationRequestUuid: string;
   isVerified: boolean;
+  verifierDid: string;
 }
 
 @Entity({ tableName: 'Presentation' })
@@ -32,6 +33,9 @@ export class PresentationEntity extends BaseEntity {
   @Property()
   isVerified: boolean;
 
+  @Property()
+  verifierDid: string;
+
   constructor (options: PresentationEntityOptions) {
     super(options);
 
@@ -41,7 +45,8 @@ export class PresentationEntity extends BaseEntity {
       presentationVerifiableCredentials,
       presentationProof,
       presentationPresentationRequestUuid,
-      isVerified
+      isVerified,
+      verifierDid
     } = options;
 
     this.presentationContext = presentationContext;
@@ -50,5 +55,6 @@ export class PresentationEntity extends BaseEntity {
     this.presentationProof = presentationProof;
     this.presentationPresentationRequestUuid = presentationPresentationRequestUuid;
     this.isVerified = isVerified;
+    this.verifierDid = verifierDid;
   }
 }
