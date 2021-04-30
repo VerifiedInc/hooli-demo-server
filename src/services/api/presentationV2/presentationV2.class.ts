@@ -1,19 +1,16 @@
 import { Params } from '@feathersjs/feathers';
 import { EncryptedPresentation, Presentation, PresentationReceiptInfo, VerificationResponse } from '@unumid/types';
-import { NoPresentation as NoPresentationDeprecated, Presentation as PresentationDeprecated } from '@unumid/types-deprecated';
+import { Presentation as PresentationDeprecated } from '@unumid/types-deprecated';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
-import { NoPresentationEntity, NoPresentationEntityOptions } from '../../../entities/NoPresentation';
 import { PresentationEntity, PresentationEntityOptions } from '../../../entities/Presentation';
 import logger from '../../../logger';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
 import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
-import { DecryptedPresentation as DecryptedPresentationDeprecated, verifyPresentation as verifyPresentationDeprecated } from '@unumid/server-sdk-deprecated';
 import { WithVersion } from '@unumid/demo-types';
-import { lt } from 'semver';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
