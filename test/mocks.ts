@@ -100,7 +100,8 @@ export const dummyVerifierEntityOptions: VerifierEntityOptions = {
   verifierName: 'test verifier',
   verifierCustomerUuid: customerUuid,
   verifierUrl: 'https://verifier-api.demo.unum.id/presentation',
-  verifierIsAuthorized: true
+  verifierIsAuthorized: true,
+  verifierVersionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
 };
 
 export const dummyVerifierRequestDto: VerifierRequestDto = {
@@ -117,7 +118,7 @@ export const dummyVerifierRequestDto: VerifierRequestDto = {
     customerUuid,
     url: 'https://verifier-api.demo.unum.id/presentation',
     isAuthorized: true,
-    versionInfo: []
+    versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
   }
 };
 
@@ -140,7 +141,7 @@ export const dummyVerifierResponseDto: VerifierResponseDto = {
     customerUuid,
     url: 'https://verifier-api.demo.unum.id/presentation',
     isAuthorized: true,
-    versionInfo: []
+    versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
   }
 };
 
@@ -547,7 +548,8 @@ export const dummyVerifierRegistrationResponse = {
       signing: {
         privateKey: dummyVerifierEntityOptions.signingPrivateKey
       }
-    }
+    },
+    versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
   }
 };
 
