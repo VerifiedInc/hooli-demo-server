@@ -382,10 +382,7 @@ export const dummyEncryptedPresentation: WithVersion<EncryptedPresentation> = {
   encryptedPresentation: dummyEncryptedPresentationData,
   version: '1.0.0'
 };
-// export const dummyEncryptedPresentation: EncryptedPresentation = {
-//   presentationRequestInfo: dummyPresentationRequestInfo,
-//   encryptedPresentation: dummyEncryptedPresentationData
-// };
+
 export const dummyPresentationWithVerification: PresentationWithVerificationDeprecated = {
   presentation: dummyPresentation,
   isVerified: true

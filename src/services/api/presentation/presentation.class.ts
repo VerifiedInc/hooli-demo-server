@@ -10,7 +10,6 @@ import logger from '../../../logger';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
-// import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 import { DecryptedPresentation, verifyPresentation, extractCredentialInfo, CredentialInfo } from '@unumid/server-sdk-deprecated';
 import { WithVersion } from '@unumid/demo-types';
 import { VerificationResponse as VerificationResponseDeprecated } from '@unumid/demo-types-deprecated';
@@ -78,25 +77,6 @@ const makeNoPresentationEntityOptionsFromNoPresentation = (
   };
 };
 
-// const makeNoPresentationEntityOptionsFromNoPresentation = (
-//   { presentation, isVerified }: PresentationWithVerification
-// ): NoPresentationEntityOptions => {
-//   const {
-//     type: npType,
-//     proof: npProof,
-//     // holder: npHolder,
-//     presentationRequestUuid: npPresentationRequestUuid
-//   } = presentation;
-
-//   return {
-//     npType,
-//     npProof,
-//     npHolder: undefined,
-//     npPresentationRequestUuid,
-//     isVerified
-//   };
-// };
-
 export class PresentationService {
   app: Application;
   options: ServiceOptions;
@@ -133,30 +113,6 @@ export class PresentationService {
       throw e;
     }
   }
-
-  // async createNoPresentationEntity (noPresentation: DecryptedPresentation, params?: Params): Promise<NoPresentationEntity> {
-  //   const decryptedPresentation: Presentation = noPresentation.presentation as Presentation;
-  //   const noPresentationWithVerification: PresentationWithVerification = { isVerified: noPresentation.isVerified, presentation: decryptedPresentation };
-  //   const options = makeNoPresentationEntityOptionsFromNoPresentation(noPresentationWithVerification);
-  //   try {
-  //     return this.noPresentationDataService.create(options, params);
-  //   } catch (e) {
-  //     logger.error('PresentationService.crateNoPresentationEntity caught an error thrown by NoPresentationDataService.create', e);
-  //     throw e;
-  //   }
-  // }
-
-  // async createPresentationEntity (presentation: DecryptedPresentation, params?: Params): Promise<PresentationEntity> {
-  //   const decryptedPresentation: Presentation = presentation.presentation as Presentation;
-  //   const presentationWithVerification: PresentationWithVerification = { isVerified: presentation.isVerified, presentation: decryptedPresentation };
-  //   const options = makePresentationEntityOptionsFromPresentation(presentationWithVerification);
-  //   try {
-  //     return this.presentationDataService.create(options, params);
-  //   } catch (e) {
-  //     logger.error('PresentationService.createPresentationEntity caught an error thrown by PresentationDataService.create', e);
-  //     throw e;
-  //   }
-  // }
 
   async create (
     data: WithVersion<EncryptedPresentation>,

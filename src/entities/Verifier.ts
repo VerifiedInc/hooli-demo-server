@@ -1,6 +1,5 @@
 import { Entity, Property } from '@mikro-orm/core';
 import { VersionInfo } from '@unumid/types';
-// import { VersionInfo } from '@unumid/demo-types/node_modules/@unumid/types';
 
 import { BaseEntity, BaseEntityOptions } from './BaseEntity';
 
