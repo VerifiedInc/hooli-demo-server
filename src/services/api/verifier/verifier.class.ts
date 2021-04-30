@@ -1,5 +1,5 @@
 import { NullableId, Params } from '@feathersjs/feathers';
-import { Verifier } from '@unumid/types';
+import { Verifier, VersionInfo } from '@unumid/types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
@@ -37,7 +37,8 @@ const makeVerifierEntityOptionsFromRequestDto = (dto: VerifierRequestDto): Verif
       name: verifierName,
       customerUuid: verifierCustomerUuid,
       url: verifierUrl,
-      isAuthorized: verifierIsAuthorized
+      isAuthorized: verifierIsAuthorized,
+      versionInfo: verifierVersionInfo
     }
   } = dto;
   return {
@@ -52,7 +53,8 @@ const makeVerifierEntityOptionsFromRequestDto = (dto: VerifierRequestDto): Verif
     verifierName,
     verifierCustomerUuid,
     verifierUrl,
-    verifierIsAuthorized
+    verifierIsAuthorized,
+    verifierVersionInfo: verifierVersionInfo as VersionInfo[]
   };
 };
 
@@ -72,7 +74,8 @@ const makeVerifierResponseDtoFromEntity = (entity: VerifierEntity): VerifierResp
     verifierName,
     verifierCustomerUuid,
     verifierUrl,
-    verifierIsAuthorized
+    verifierIsAuthorized,
+    verifierVersionInfo
   } = entity;
 
   return {
@@ -91,7 +94,8 @@ const makeVerifierResponseDtoFromEntity = (entity: VerifierEntity): VerifierResp
       name: verifierName,
       customerUuid: verifierCustomerUuid,
       url: verifierUrl,
-      isAuthorized: verifierIsAuthorized
+      isAuthorized: verifierIsAuthorized,
+      versionInfo: verifierVersionInfo
     }
   };
 };

@@ -3,7 +3,7 @@ import path from 'path';
 
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20210409202521 extends Migration {
+export class Migration20210409200341 extends Migration {
   async up (): Promise<void> {
     // add the prHolderAppInfo column, allowing null values to account for existing rows
     this.addSql('alter table "PresentationRequest" add column "prHolderAppInfo" jsonb;');

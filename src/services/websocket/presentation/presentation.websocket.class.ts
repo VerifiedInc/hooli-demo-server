@@ -1,21 +1,18 @@
 import { Params } from '@feathersjs/feathers';
-import { EncryptedPresentation, NoPresentation, Presentation, PresentationReceiptInfo } from '@unumid/types';
+import { EncryptedPresentation, Presentation, PresentationReceiptInfo, VerificationResponse } from '@unumid/types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
-import { NoPresentationEntity, NoPresentationEntityOptions } from '../../../entities/NoPresentation';
-import { PresentationEntity, PresentationEntityOptions } from '../../../entities/Presentation';
-import logger from '../../../logger';
-import { BadRequest, NotFound } from '@feathersjs/errors';
-import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
-import { CryptoError } from '@unumid/library-crypto';
-import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
-import { DemoNoPresentationDto, DemoPresentationDto, VerificationResponse } from '@unumid/demo-types';
+import { NoPresentationEntity } from '../../../entities/NoPresentation';
+import { PresentationEntity } from '../../../entities/Presentation';
+import { DemoNoPresentationDto as DemoNoPresentationDtoDeprecated, DemoPresentationDto as DemoPresentationDtoDeprecated } from '@unumid/demo-types-deprecated';
+import { DemoPresentationDto, WithVersion } from '@unumid/demo-types';
+import { lt } from 'semver';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
 
-const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPresentationDto => {
+const makeDemoPresentationDtoFromEntity = (entity: WithVersion<PresentationEntity>): DemoPresentationDto | DemoPresentationDtoDeprecated => {
   const {
     uuid,
     createdAt,
@@ -25,8 +22,27 @@ const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPres
     presentationVerifiableCredentials,
     presentationProof,
     presentationPresentationRequestUuid,
-    isVerified
+    isVerified,
+    verifierDid
   } = entity;
+
+  if (lt(entity.version, '2.0.0')) {
+    return {
+      uuid,
+      createdAt,
+      updatedAt,
+      presentation: {
+        '@context': presentationContext,
+        uuid,
+        type: presentationType,
+        verifiableCredentials: presentationVerifiableCredentials,
+        verifierDid,
+        proof: presentationProof,
+        presentationRequestUuid: presentationPresentationRequestUuid
+      },
+      isVerified
+    };
+  }
 
   return {
     uuid,
@@ -36,7 +52,8 @@ const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPres
       '@context': presentationContext,
       uuid,
       type: presentationType,
-      verifiableCredentials: presentationVerifiableCredentials,
+      verifiableCredential: presentationVerifiableCredentials,
+      verifierDid,
       proof: presentationProof,
       presentationRequestUuid: presentationPresentationRequestUuid
     },
@@ -44,7 +61,7 @@ const makeDemoPresentationDtoFromEntity = (entity: PresentationEntity): DemoPres
   };
 };
 
-const makeDemoNoPresentationDtoFromEntity = (entity: NoPresentationEntity): DemoNoPresentationDto => {
+const makeDemoNoPresentationDtoFromEntity = (entity: NoPresentationEntity): DemoNoPresentationDtoDeprecated => {
   const {
     uuid,
     createdAt,
@@ -84,14 +101,15 @@ export class PresentationService {
     }
 
     async create (
-      data: PresentationEntity | NoPresentationEntity,
+      data: WithVersion<PresentationEntity> | NoPresentationEntity,
       params?: Params
-    ): Promise<DemoPresentationDto | DemoNoPresentationDto> {
-      let response: DemoPresentationDto | DemoNoPresentationDto;
+    ): Promise<DemoPresentationDto | DemoNoPresentationDtoDeprecated | DemoPresentationDtoDeprecated> { // TODO remove the deprecated types
+      let response: DemoPresentationDto | DemoNoPresentationDtoDeprecated | DemoPresentationDtoDeprecated;
 
       // checking wether we are dealing with a Presentation or NoPresentation entity
       if ((data as PresentationEntity).presentationType && (data as PresentationEntity).presentationType.includes('VerifiablePresentation')) {
-        response = makeDemoPresentationDtoFromEntity(data as PresentationEntity);
+        // TODO: need to check what pres type it is then do one dep demo dto and one not dep demo dto.
+        response = makeDemoPresentationDtoFromEntity(data as WithVersion<PresentationEntity>);
       } else {
         response = makeDemoNoPresentationDtoFromEntity(data as NoPresentationEntity);
       }
