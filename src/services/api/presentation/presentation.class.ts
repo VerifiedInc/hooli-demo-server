@@ -1,6 +1,5 @@
 import { Params } from '@feathersjs/feathers';
-import { VerificationResponse } from '@unumid/types';
-import { NoPresentation, Presentation, EncryptedPresentation, PresentationReceiptInfo } from '@unumid/types-deprecated';
+import { NoPresentation, Presentation, EncryptedPresentation as EncryptedPresentationDeprecated, PresentationReceiptInfo } from '@unumid/types-deprecated-v1';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
@@ -10,9 +9,9 @@ import logger from '../../../logger';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
-import { DecryptedPresentation, verifyPresentation, extractCredentialInfo, CredentialInfo } from '@unumid/server-sdk-deprecated';
-import { WithVersion } from '@unumid/demo-types';
-import { VerificationResponse as VerificationResponseDeprecated } from '@unumid/demo-types-deprecated';
+import { DecryptedPresentation, verifyPresentation, extractCredentialInfo, CredentialInfo } from '@unumid/server-sdk-deprecated-v1';
+import { WithVersion, VerificationResponse, EncryptedPresentation } from '@unumid/types-deprecated-v2';
+import { VerificationResponse as VerificationResponseDeprecated } from '@unumid/demo-types-deprecated-v1';
 
 import { lt } from 'semver';
 
@@ -123,6 +122,7 @@ export class PresentationService {
       const presentationRequest: PresentationRequestEntity = await presentationRequestService.findOne({ prUuid: data.presentationRequestInfo.presentationRequest.uuid });
       const presentationWebsocketService = this.app.service('presentationWebsocket');
       const presentationServiceV2 = this.app.service('presentationV2');
+      // const presentationServiceV3 = this.app.service('presentationV3');
 
       if (!presentationRequest) {
         throw new NotFound('PresentationRequest not found.');
@@ -192,18 +192,24 @@ export class PresentationService {
         logger.info(`Handled encrypted presentation of type ${result.type}${result.type === 'VerifiablePresentation' ? ` with credentials [${credentialInfo.credentialTypes}]` : ''} for subject ${credentialInfo.subjectDid}`);
 
         return { isVerified: true, type: result.type, presentationReceiptInfo, presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid };
-      } else { // request was made with version header 2.0.0+, use the V2 service
+      } else if (lt(data.version, '3.0.0')) { // request was made with version header 2.0.0+, use the V2 service
         const newParams = {
           ...params,
           headers: { ...params?.headers, version: data.version }
         };
         return await (presentationServiceV2.create(data, newParams) as Promise<VerificationResponse>);
+      } else if (lt(data.version, '4.0.0')) {
+        logger.error('If one wants to hit presentation service with version 3.0.0 hit the service directly, /presentationV3.');
+        throw new BadRequest('If one wants to hit presentation service with version 3.0.0 hit the service directly, /presentationV3.');
+      } else {
+        logger.error(`Request made with unsupported api version ${data.version}.`);
+        throw new BadRequest(`Api version ${data.version} not supported.`);
       }
     } catch (error) {
       if (error instanceof CryptoError) {
         logger.error('Crypto error handling encrypted presentation', error);
       } else {
-        logger.error('Error handling encrypted presentation request to UnumID Saas.', error);
+        logger.error('Error handling encrypted presentation to UnumID Saas.', error);
       }
 
       throw error;

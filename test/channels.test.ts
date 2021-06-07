@@ -37,7 +37,7 @@ describe('channels', () => {
       it('publishes to the correct session channel', async () => {
         mockService.mockReturnValueOnce(dummyRequestService);
         await presentationPublisher(app)(dummyPresentationResponseDto, {} as HookContext);
-        expect(app.channel).toBeCalledWith(dummyPresentationRequestEntity.prMetadata.sessionUuid);
+        expect(app.channel).toBeCalledWith(dummyPresentationRequestEntity.prMetadata.fields.sessionUuid);
       });
     });
   });

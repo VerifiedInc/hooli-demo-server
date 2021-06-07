@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers';
 import { BadRequest, GeneralError } from '@feathersjs/errors';
-import { verifyPresentation, verifyNoPresentation } from '@unumid/server-sdk';
+// import { verifyPresentation, verifyNoPresentation } from '@unumid/server-sdk';
 import { omit } from 'lodash';
 
 import { validateData, hooks } from '../../../../src/services/api/presentation/presentation.hooks';

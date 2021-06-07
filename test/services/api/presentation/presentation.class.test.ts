@@ -1,6 +1,6 @@
 import { PresentationService } from '../../../../src/services/api/presentation/presentation.class';
 import { Application } from '../../../../src/declarations';
-import * as serverSdk from '@unumid/server-sdk-deprecated';
+import * as serverSdk from '@unumid/server-sdk-deprecated-v1';
 import { CryptoError } from '@unumid/library-crypto';
 
 import {
@@ -19,10 +19,10 @@ import {
   dummyVerifierDid
 } from '../../../mocks';
 
-import { Presentation, PresentationReceiptInfo } from '@unumid/types-deprecated';
-import { CredentialInfo, extractCredentialInfo } from '@unumid/server-sdk-deprecated';
+import { Presentation, PresentationReceiptInfo } from '@unumid/types-deprecated-v1';
+import { CredentialInfo, extractCredentialInfo } from '@unumid/server-sdk-deprecated-v1';
 import { PresentationEntityOptions } from '../../../../src/entities/Presentation';
-import { VerificationResponse } from '@unumid/demo-types-deprecated';
+import { VerificationResponse } from '@unumid/demo-types-deprecated-v1';
 import { NoPresentationEntityOptions } from '../../../../src/entities/NoPresentation';
 import logger from '../../../../src/logger';
 import { BadRequest } from '@feathersjs/errors';

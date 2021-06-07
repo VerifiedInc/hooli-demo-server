@@ -1,5 +1,5 @@
 import { Entity, Property } from '@mikro-orm/core';
-import { Proof, Credential } from '@unumid/types';
+import { Proof, Credential } from '@unumid/types-deprecated-v2';
 
 import { BaseEntity, BaseEntityOptions } from './BaseEntity';
 

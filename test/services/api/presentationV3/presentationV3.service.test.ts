@@ -1,12 +1,12 @@
 import generateApp from '../../../../src/app';
 import { Application } from '../../../../src/declarations';
-import { hooks } from '../../../../src/services/api/presentationV2/presentationV2.hooks';
-import presentationService from '../../../../src/services/api/presentationV2/presentationV2.service';
+import { hooks } from '../../../../src/services/api/presentationV3/presentationV3.hooks';
+import presentationService from '../../../../src/services/api/presentationV3/presentationV3.service';
 
-describe('initializing the presentation V2 service', () => {
+describe('initializing the presentation V3 service', () => {
   it('registers with the app', async () => {
     const app = await generateApp();
-    const service = app.service('presentationV2');
+    const service = app.service('presentationV3');
     expect(service).toBeDefined();
   });
 
