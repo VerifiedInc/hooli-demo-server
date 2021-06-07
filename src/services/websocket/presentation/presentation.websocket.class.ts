@@ -1,12 +1,12 @@
 import { Params } from '@feathersjs/feathers';
-import { EncryptedPresentation, Presentation, PresentationReceiptInfo, VerificationResponse } from '@unumid/types';
+import { WithVersion } from '@unumid/types-deprecated-v2';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
 import { NoPresentationEntity } from '../../../entities/NoPresentation';
 import { PresentationEntity } from '../../../entities/Presentation';
-import { DemoNoPresentationDto as DemoNoPresentationDtoDeprecated, DemoPresentationDto as DemoPresentationDtoDeprecated } from '@unumid/demo-types-deprecated';
-import { DemoPresentationDto, WithVersion } from '@unumid/demo-types';
+import { DemoNoPresentationDto as DemoNoPresentationDtoDeprecated, DemoPresentationDto as DemoPresentationDtoDeprecated } from '@unumid/demo-types-deprecated-v1';
+import { DemoPresentationDto } from '@unumid/demo-types-deprecated-v2';
 import { lt } from 'semver';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

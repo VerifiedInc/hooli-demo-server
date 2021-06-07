@@ -1,7 +1,8 @@
-import { PresentationServiceV2 as PresentationService } from '../../../../src/services/api/presentationV2/presentationV2.class';
+import { PresentationServiceV3 as PresentationService } from '../../../../src/services/api/presentationV3/presentationV3.class';
 import { Application } from '../../../../src/declarations';
-import * as serverSdk from '@unumid/server-sdk-deprecated-v2';
+import * as serverSdk from '@unumid/server-sdk';
 import { CryptoError } from '@unumid/library-crypto';
+import { Credential, Presentation, PresentationReceiptInfo, VerificationResponse } from '@unumid/types';
 
 import {
   dummyEncryptedPresentation,
@@ -18,14 +19,13 @@ import {
   dummyDeclinedPresentation
 } from '../../../mocksV2';
 
-import { Presentation, PresentationReceiptInfo, VerificationResponse } from '@unumid/types-deprecated-v2';
-import { CredentialInfo, extractCredentialInfo } from '@unumid/server-sdk-deprecated-v2';
+import { CredentialInfo, extractCredentialInfo } from '@unumid/server-sdk';
 import { PresentationEntityOptions } from '../../../../src/entities/Presentation';
 
 import logger from '../../../../src/logger';
 import { BadRequest } from '@feathersjs/errors';
 
-describe('PresentationServiceV2', () => {
+describe('PresentationServiceV3', () => {
   let service: PresentationService;
   let app: Application;
 
@@ -70,7 +70,7 @@ describe('PresentationServiceV2', () => {
       const expectedPresentationEntityOptions: PresentationEntityOptions = {
         presentationContext: dummyPresentation['@context'],
         presentationType: dummyPresentation.type,
-        presentationVerifiableCredentials: dummyPresentation.verifiableCredential,
+        presentationVerifiableCredentials: dummyPresentation.verifiableCredential as Credential[],
         presentationProof: dummyPresentation.proof,
         presentationPresentationRequestUuid: dummyPresentation.presentationRequestUuid,
         isVerified: true,

@@ -1,8 +1,8 @@
 import { Hook } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
-import { Presentation as PresentationDeprecated, NoPresentation as NoPresentationDeprecated } from '@unumid/types-deprecated';
-import { Presentation, EncryptedPresentation } from '@unumid/types';
-import { WithVersion } from '@unumid/demo-types';
+import { Presentation as PresentationDeprecated, NoPresentation as NoPresentationDeprecated } from '@unumid/types-deprecated-v1';
+import { Presentation, EncryptedPresentation, WithVersion } from '@unumid/types-deprecated-v2';
+
 import { lt, valid } from 'semver';
 
 export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
@@ -28,7 +28,7 @@ export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   }
 
   if (lt(params.headers.version, '2.0.0')) {
-    throw new BadRequest('version header must be greater than 2.0.0 for the presentationV2 service.');
+    throw new BadRequest('version header must be 2.x.x for the presentationV2 service.');
   }
 
   data.version = params.headers.version;

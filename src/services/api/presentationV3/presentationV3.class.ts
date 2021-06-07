@@ -1,5 +1,6 @@
 import { Params } from '@feathersjs/feathers';
-import { EncryptedPresentation, Presentation, PresentationReceiptInfo, VerificationResponse, WithVersion, PresentationRequestDto, PresentationRequest } from '@unumid/types-deprecated-v2';
+import { EncryptedPresentation, Presentation, PresentationReceiptInfo, VerificationResponse, WithVersion } from '@unumid/types';
+import { Presentation as PresentationDeprecated } from '@unumid/types-deprecated-v1';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
@@ -8,7 +9,7 @@ import logger from '../../../logger';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
-import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk-deprecated-v2';
+import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions { }
@@ -42,7 +43,7 @@ const makePresentationEntityOptionsFromPresentation = (
   };
 };
 
-export class PresentationServiceV2 {
+export class PresentationServiceV3 {
   app: Application;
   options: ServiceOptions;
   presentationDataService: MikroOrmService<PresentationEntity>;
@@ -54,7 +55,7 @@ export class PresentationServiceV2 {
   }
 
   async createPresentationEntity (presentation: DecryptedPresentation, params?: Params): Promise<PresentationEntity> {
-    const decryptedPresentation: Presentation = presentation.presentation as Presentation;
+    const decryptedPresentation: Presentation = presentation.presentation as PresentationDeprecated;
     const presentationWithVerification: PresentationWithVerification = { isVerified: presentation.isVerified, presentation: decryptedPresentation };
     const options = makePresentationEntityOptionsFromPresentation(presentationWithVerification);
     try {
