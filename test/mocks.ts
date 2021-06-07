@@ -11,7 +11,7 @@ import {
   Proof,
   PresentationRequestDto,
   EncryptedPresentation
-} from '@unumid/types-deprecated';
+} from '@unumid/types-deprecated-v1';
 import { encrypt } from '@unumid/library-crypto';
 
 import { VerifierEntityOptions, VerifierEntity } from '../src/entities/Verifier';
@@ -24,8 +24,8 @@ import {
   PresentationWithVerificationDeprecated,
   NoPresentationWithVerificationDeprecated
 } from '../src/services/api/presentation/presentation.class';
-import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types-deprecated';
-import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk-deprecated';
+import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types-deprecated-v1';
+import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk-deprecated-v1';
 import { WithVersion } from '@unumid/demo-types';
 
 // export const dummyVerifierDid = `did:unum:${v4()}`;
@@ -146,6 +146,7 @@ export const dummyVerifierResponseDto: VerifierResponseDto = {
 };
 
 export const dummyPresentationRequestUuid = v4();
+export const dummyPresentationRequestId = v4();
 export const dummyVerifierDidWithHash = `${dummyVerifierDid}#${v4()}`;
 export const dummyHolderAppUuid = v4();
 
@@ -160,6 +161,7 @@ export const dummySession = new Session({});
 
 export const dummyPresentationRequestEntityOptions: PresentationRequestEntityOptions = {
   prUuid: dummyPresentationRequestUuid,
+  prId: dummyPresentationRequestId,
   prCreatedAt: now,
   prUpdatedAt: now,
   prExpiresAt: tenMinutesFromNow,
@@ -176,7 +178,7 @@ export const dummyPresentationRequestEntityOptions: PresentationRequestEntityOpt
     verificationMethod: dummyVerifierDidWithHash,
     proofPurpose: 'assertionMethod'
   },
-  prMetadata: { sessionUuid: dummySession.uuid },
+  prMetadata: { fields: { sessionUuid: dummySession.uuid } },
   prHolderAppUuid: dummyHolderAppUuid,
   prVerifierInfo: {
     name: dummyVerifierEntityOptions.verifierName,
@@ -198,6 +200,7 @@ export const dummyPresentationRequestEntity = new PresentationRequestEntity(dumm
 export const dummyPresentationRequestPostDto: PresentationRequestPostDto = {
   presentationRequest: {
     uuid: dummyPresentationRequestUuid,
+    id: dummyPresentationRequestId,
     createdAt: now,
     updatedAt: now,
     expiresAt: tenMinutesFromNow,
@@ -214,7 +217,7 @@ export const dummyPresentationRequestPostDto: PresentationRequestPostDto = {
       verificationMethod: dummyVerifierDidWithHash,
       proofPurpose: 'assertionMethod'
     },
-    metadata: { sessionUuid: dummySession.uuid },
+    metadata: { fields: { sessionUuid: dummySession.uuid } },
     holderAppUuid: dummyHolderAppUuid
   },
   verifier: {

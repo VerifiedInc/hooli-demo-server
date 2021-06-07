@@ -16,6 +16,7 @@ const makePresentationRequestEntityOptionsFromDto = (
   const {
     presentationRequest: {
       uuid: prUuid,
+      id: prId,
       createdAt: prCreatedAt,
       updatedAt: prUpdatedAt,
       expiresAt: prExpiresAt,
@@ -34,6 +35,7 @@ const makePresentationRequestEntityOptionsFromDto = (
 
   return {
     prUuid,
+    prId,
     prCreatedAt,
     prUpdatedAt,
     prExpiresAt,
@@ -58,6 +60,7 @@ const makeDemoPresentationRequestDtoFromEntity = (
     createdAt,
     updatedAt,
     prUuid,
+    prId,
     prCreatedAt,
     prUpdatedAt,
     prExpiresAt,
@@ -80,6 +83,7 @@ const makeDemoPresentationRequestDtoFromEntity = (
     presentationRequestPostDto: {
       presentationRequest: {
         uuid: prUuid,
+        id: prId,
         createdAt: prCreatedAt,
         updatedAt: prUpdatedAt,
         expiresAt: prExpiresAt,
