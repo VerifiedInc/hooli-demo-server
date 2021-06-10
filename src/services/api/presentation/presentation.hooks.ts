@@ -28,7 +28,7 @@ export const validateData: Hook<WithVersion<EncryptedPresentation>> = (ctx) => {
   }
 
   data.version = params.headers.version;
-  logger.info(`Presentation request made with version header ${data.version}`);
+  logger.info(`Presentation endpoint hit with version header ${data.version}`);
 
   params.isValidated = true;
 };

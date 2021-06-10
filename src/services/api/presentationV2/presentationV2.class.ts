@@ -25,7 +25,7 @@ const makePresentationEntityOptionsFromPresentation = (
     '@context': presentationContext,
     type: presentationType,
     proof: presentationProof,
-    presentationRequestUuid: presentationPresentationRequestUuid,
+    presentationRequestId: presentationPresentationRequestId,
     verifierDid
   } = presentation;
 
@@ -36,7 +36,7 @@ const makePresentationEntityOptionsFromPresentation = (
     presentationType,
     presentationVerifiableCredentials,
     presentationProof,
-    presentationPresentationRequestUuid,
+    presentationPresentationRequestId,
     isVerified,
     verifierDid
   };
@@ -136,7 +136,7 @@ export class PresentationServiceV2 {
       if (error instanceof CryptoError) {
         logger.error('Crypto error handling encrypted presentation', error);
       } else {
-        logger.error('Error handling encrypted presentation to UnumID Saas.', error);
+        logger.error('Error handling encrypted presentation from UnumID Saas.', error);
       }
 
       throw error;
