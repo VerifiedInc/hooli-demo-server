@@ -70,7 +70,7 @@ describe('PresentationService', () => {
         presentationType: dummyPresentation.type,
         presentationVerifiableCredentials: dummyPresentation.verifiableCredentials,
         presentationProof: dummyPresentation.proof,
-        presentationPresentationRequestUuid: dummyPresentation.presentationRequestUuid,
+        presentationPresentationRequestId: dummyPresentation.presentationRequestUuid,
         isVerified: true,
         verifierDid: dummyVerifierDid
       };

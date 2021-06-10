@@ -22,9 +22,9 @@ describe('PresentationEntity', () => {
     it('sets the presentation data from options', () => {
       expect(presentationEntity.presentationContext).toEqual(dummyPresentationEntityOptions.presentationContext);
       expect(presentationEntity.presentationType).toEqual(dummyPresentationEntityOptions.presentationType);
-      expect(presentationEntity.presentationVerifiableCredential).toEqual(dummyPresentationEntityOptions.presentationVerifiableCredential);
+      expect(presentationEntity.presentationVerifiableCredentials).toEqual(dummyPresentationEntityOptions.presentationVerifiableCredentials);
       expect(presentationEntity.presentationProof).toEqual(dummyPresentationEntityOptions.presentationProof);
-      expect(presentationEntity.presentationPresentationRequestUuid).toEqual(dummyPresentationEntityOptions.presentationPresentationRequestUuid);
+      expect(presentationEntity.presentationPresentationRequestId).toEqual(dummyPresentationEntityOptions.presentationPresentationRequestId);
     });
 
     it('sets isVerified from options', () => {

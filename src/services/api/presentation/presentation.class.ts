@@ -40,7 +40,8 @@ const makePresentationEntityOptionsFromPresentation = (
     '@context': presentationContext,
     type: presentationType,
     proof: presentationProof,
-    presentationRequestUuid: presentationPresentationRequestUuid,
+    // presentationRequestUuid: presentationPresentationRequestUuid,
+    presentationRequestUuid: presentationPresentationRequestId, // HACK ALERT: just assigning the uuid to the id field for now until the v2 types are updated and support for v1 is removed
     verifierDid
   } = presentation;
 
@@ -51,7 +52,9 @@ const makePresentationEntityOptionsFromPresentation = (
     presentationType,
     presentationVerifiableCredentials,
     presentationProof,
-    presentationPresentationRequestUuid,
+    // presentationPresentationRequestUuid,
+    // presentationPresentationRequestId: '2971f495-387b-4d24-ab0b-9ea3bbc6a543',
+    presentationPresentationRequestId,
     isVerified,
     verifierDid
   };
@@ -89,8 +92,9 @@ export class PresentationService {
     this.noPresentationDataService = app.service('noPresentationData');
   }
 
-  async createPresentationEntity (presentation: DecryptedPresentation, params?: Params): Promise<PresentationEntity> {
+  async createPresentationEntity (presentation: DecryptedPresentation, params?: Params, presentationRequestId?: string): Promise<PresentationEntity> {
     const decryptedPresentation: Presentation = presentation.presentation as Presentation;
+    // const pres: Presentation
     const presentationWithVerification: PresentationWithVerificationDeprecated = { isVerified: presentation.isVerified, presentation: decryptedPresentation };
     const options = makePresentationEntityOptionsFromPresentation(presentationWithVerification);
     try {
@@ -154,7 +158,7 @@ export class PresentationService {
           try {
             // Persist the Presentation entity and add the version for the websocket handler
             const entity = {
-              ...await this.createPresentationEntity(result, params),
+              ...await this.createPresentationEntity(result, params, data.presentationRequestInfo.presentationRequest.id),
               version: data.version
             };
 
@@ -209,7 +213,7 @@ export class PresentationService {
       if (error instanceof CryptoError) {
         logger.error('Crypto error handling encrypted presentation', error);
       } else {
-        logger.error('Error handling encrypted presentation to UnumID Saas.', error);
+        logger.error('Error handling encrypted presentation from UnumID Saas.', error);
       }
 
       throw error;
