@@ -8,7 +8,7 @@ export interface PresentationEntityOptions extends BaseEntityOptions {
   presentationType: ['VerifiablePresentation', ...string[]];
   presentationVerifiableCredentials: Credential[];
   presentationProof: Proof;
-  presentationPresentationRequestUuid: string;
+  presentationPresentationRequestId: string;
   isVerified: boolean;
   verifierDid: string;
 }
@@ -28,7 +28,7 @@ export class PresentationEntity extends BaseEntity {
   presentationProof: Proof;
 
   @Property()
-  presentationPresentationRequestUuid: string;
+  presentationPresentationRequestId: string;
 
   @Property()
   isVerified: boolean;
@@ -44,7 +44,7 @@ export class PresentationEntity extends BaseEntity {
       presentationType,
       presentationVerifiableCredentials,
       presentationProof,
-      presentationPresentationRequestUuid,
+      presentationPresentationRequestId,
       isVerified,
       verifierDid
     } = options;
@@ -53,7 +53,7 @@ export class PresentationEntity extends BaseEntity {
     this.presentationType = presentationType;
     this.presentationVerifiableCredentials = presentationVerifiableCredentials;
     this.presentationProof = presentationProof;
-    this.presentationPresentationRequestUuid = presentationPresentationRequestUuid;
+    this.presentationPresentationRequestId = presentationPresentationRequestId;
     this.isVerified = isVerified;
     this.verifierDid = verifierDid;
   }

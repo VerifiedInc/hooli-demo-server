@@ -1,5 +1,5 @@
 import { Params } from '@feathersjs/feathers';
-import { EncryptedPresentation, Presentation, PresentationReceiptInfo, VerificationResponse, WithVersion } from '@unumid/types';
+import { EncryptedPresentation, Presentation, PresentationPb, PresentationReceiptInfo, Proof, VerificationResponse, WithVersion, Credential } from '@unumid/types';
 import { Presentation as PresentationDeprecated } from '@unumid/types-deprecated-v1';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
@@ -15,7 +15,7 @@ import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPre
 interface ServiceOptions { }
 
 export interface PresentationWithVerification {
-  presentation: Presentation;
+  presentation: PresentationPb;
   isVerified: boolean;
 }
 
@@ -23,21 +23,22 @@ const makePresentationEntityOptionsFromPresentation = (
   { presentation, isVerified }: PresentationWithVerification
 ): PresentationEntityOptions => {
   const {
-    '@context': presentationContext,
-    type: presentationType,
-    proof: presentationProof,
-    presentationRequestUuid: presentationPresentationRequestUuid,
+    presentationRequestId: presentationPresentationRequestId,
     verifierDid
   } = presentation;
 
-  const presentationVerifiableCredentials = presentation.verifiableCredential ? presentation.verifiableCredential : [];
+  // HACK ALERT: having to appease the typescript type due to the crypto, Protobuf PresentationPb type not fully aligning with the Typescript Presentation type def.
+  const presentationContext = presentation.context as ['https://www.w3.org/2018/credentials/v1', ...string[]];
+  const presentationType = presentation.type as ['VerifiablePresentation', ...string[]];
+  const presentationProof = presentation.proof as any as Proof;
+  const presentationVerifiableCredentials = presentation.verifiableCredential ? presentation.verifiableCredential as any as Credential[] : [];
 
   return {
     presentationContext,
     presentationType,
     presentationVerifiableCredentials,
     presentationProof,
-    presentationPresentationRequestUuid,
+    presentationPresentationRequestId,
     isVerified,
     verifierDid
   };
@@ -55,7 +56,7 @@ export class PresentationServiceV3 {
   }
 
   async createPresentationEntity (presentation: DecryptedPresentation, params?: Params): Promise<PresentationEntity> {
-    const decryptedPresentation: Presentation = presentation.presentation as PresentationDeprecated;
+    const decryptedPresentation: PresentationPb = presentation.presentation as PresentationPb;
     const presentationWithVerification: PresentationWithVerification = { isVerified: presentation.isVerified, presentation: decryptedPresentation };
     const options = makePresentationEntityOptionsFromPresentation(presentationWithVerification);
     try {
@@ -118,8 +119,8 @@ export class PresentationServiceV3 {
       }
 
       // extract the relevant credential info to send back to UnumID SaaS for analytics.
-      const decryptedPresentation: Presentation = result.presentation as Presentation;
-      const credentialInfo: CredentialInfo = extractCredentialInfo((decryptedPresentation));
+      const decryptedPresentation: PresentationPb = result.presentation as PresentationPb;
+      const credentialInfo: CredentialInfo = extractCredentialInfo(decryptedPresentation);
 
       const presentationReceiptInfo: PresentationReceiptInfo = {
         subjectDid: credentialInfo.subjectDid,
@@ -137,7 +138,7 @@ export class PresentationServiceV3 {
       if (error instanceof CryptoError) {
         logger.error('Crypto error handling encrypted presentation', error);
       } else {
-        logger.error('Error handling encrypted presentation to UnumID Saas.', error);
+        logger.error('Error handling encrypted presentation from UnumID Saas.', error);
       }
 
       throw error;

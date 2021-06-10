@@ -9,8 +9,9 @@ import {
   UnsignedPresentation,
   Proof,
   PresentationRequestDto,
-  EncryptedPresentation
-} from '@unumid/types';
+  EncryptedPresentation,
+  WithVersion
+} from '@unumid/types-deprecated-v2';
 import { encrypt } from '@unumid/library-crypto';
 
 import { VerifierEntityOptions, VerifierEntity } from '../src/entities/Verifier';
@@ -23,8 +24,8 @@ import {
   PresentationWithVerificationDeprecated,
   NoPresentationWithVerificationDeprecated
 } from '../src/services/api/presentation/presentation.class';
-import { DemoPresentationDto, DemoPresentationRequestDto, WithVersion } from '@unumid/demo-types';
-import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk';
+import { DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types';
+import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk-deprecated-v2';
 import { CredentialSubject } from '@unumid/server-sdk-deprecated-v1';
 import { DemoNoPresentationDto } from '@unumid/demo-types-deprecated-v1';
 

@@ -1,17 +1,21 @@
 import fs from 'fs';
 import path from 'path';
 
-import { v4 } from 'uuid';
+import { stringify, v4 } from 'uuid';
 import {
   Credential,
   Presentation,
   PresentationRequestPostDto,
-  NoPresentation,
   UnsignedPresentation,
   Proof,
   PresentationRequestDto,
-  EncryptedPresentation
-} from '@unumid/types-deprecated-v1';
+  EncryptedPresentation,
+  WithVersion,
+  PresentationPb,
+  UnsignedPresentationPb,
+  CredentialPb,
+  ProofPb
+} from '@unumid/types';
 import { encrypt } from '@unumid/library-crypto';
 
 import { VerifierEntityOptions, VerifierEntity } from '../src/entities/Verifier';
@@ -24,9 +28,11 @@ import {
   PresentationWithVerificationDeprecated,
   NoPresentationWithVerificationDeprecated
 } from '../src/services/api/presentation/presentation.class';
-import { DemoNoPresentationDto, DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types-deprecated-v1';
-import { DecryptedPresentation, UnumDto, createProof } from '@unumid/server-sdk-deprecated-v1';
-import { WithVersion } from '@unumid/demo-types';
+import { DemoPresentationDto, DemoPresentationRequestDto } from '@unumid/demo-types';
+import { DecryptedPresentation, UnumDto, createProof, createProofPb } from '@unumid/server-sdk';
+import { CredentialSubject } from '@unumid/server-sdk-deprecated-v1';
+import { DemoNoPresentationDto } from '@unumid/demo-types-deprecated-v1';
+import { PresentationWithVerification } from '../src/services/api/presentationV3/presentationV3.class';
 
 // export const dummyVerifierDid = `did:unum:${v4()}`;
 export const dummyVerifierDid = 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8';
@@ -117,8 +123,7 @@ export const dummyVerifierRequestDto: VerifierRequestDto = {
     name: 'test verifier',
     customerUuid,
     url: 'https://verifier-api.demo.unum.id/presentation',
-    isAuthorized: true,
-    versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
+    isAuthorized: true
   }
 };
 
@@ -141,7 +146,7 @@ export const dummyVerifierResponseDto: VerifierResponseDto = {
     customerUuid,
     url: 'https://verifier-api.demo.unum.id/presentation',
     isAuthorized: true,
-    versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
+    versionInfo: []
   }
 };
 
@@ -168,17 +173,17 @@ export const dummyPresentationRequestEntityOptions: PresentationRequestEntityOpt
   prVerifier: dummyVerifierDid,
   prCredentialRequests: [{
     type: 'TestCredential',
-    issuers: [dummyIssuerDid]
+    issuers: [dummyIssuerDid],
+    required: true
   }],
   prProof: {
     created: now.toISOString(),
     signatureValue: 'dummy signature value',
-    unsignedValue: 'dummy unsigned value',
     type: 'secp256r1signature2020',
     verificationMethod: dummyVerifierDidWithHash,
     proofPurpose: 'assertionMethod'
   },
-  prMetadata: { fields: { sessionUuid: dummySession.uuid } },
+  prMetadata: { sessionUuid: dummySession.uuid },
   prHolderAppUuid: dummyHolderAppUuid,
   prVerifierInfo: {
     name: dummyVerifierEntityOptions.verifierName,
@@ -207,17 +212,17 @@ export const dummyPresentationRequestPostDto: PresentationRequestPostDto = {
     verifier: dummyVerifierDid,
     credentialRequests: [{
       type: 'TestCredential',
-      issuers: [dummyIssuerDid]
+      issuers: [dummyIssuerDid],
+      required: true
     }],
     proof: {
       created: now.toISOString(),
       signatureValue: 'dummy signature value',
-      unsignedValue: 'dummy unsigned value',
       type: 'secp256r1signature2020',
       verificationMethod: dummyVerifierDidWithHash,
       proofPurpose: 'assertionMethod'
     },
-    metadata: { fields: { sessionUuid: dummySession.uuid } },
+    metadata: { sessionUuid: dummySession.uuid },
     holderAppUuid: dummyHolderAppUuid
   },
   verifier: {
@@ -243,45 +248,47 @@ export const dummyPresentationRequestResponseDto: DemoPresentationRequestDto = {
   updatedAt: dummyPresentationRequestEntity.updatedAt
 };
 
-const dummyCredential: Credential = {
-  '@context': [
+const dummyCredentialSubject: CredentialSubject = {
+  id: 'did:unum:54ca4b1f-fe7e-43ce-a4e4-8ec178f16a65',
+  firstName: 'Wile',
+  middleInitial: 'E.',
+  lastName: 'Coyote',
+  username: 'Central-value-added-908',
+  ssn4: 4321,
+  contactInformation: {
+    emailAddress: 'AnvilAvoider@gmail.com',
+    phoneNumber: '1234567890',
+    homeAddress: {
+      line1: '98765 Runner Rd.',
+      city: 'Desert',
+      state: 'AZ',
+      zip: 12345,
+      country: 'United States'
+    }
+  },
+  driversLicense: {
+    state: 'AZ',
+    number: 'n-123456789',
+    expiration: '2026-01-14T00:00:00.000Z'
+  },
+  accounts: {
+    checking: {
+      accountNumber: '543888430912',
+      routingNumber: '021000021'
+    }
+  },
+  confidence: '99%'
+};
+
+const dummyCredential: CredentialPb = {
+  context: [
     'https://www.w3.org/2018/credentials/v1'
   ],
   credentialStatus: {
     id: 'https://api.dev-unumid.org//credentialStatus/9e90a492-3360-4beb-b3ca-e8eff1ec6e2a',
     type: 'CredentialStatus'
   },
-  credentialSubject: {
-    id: 'did:unum:54ca4b1f-fe7e-43ce-a4e4-8ec178f16a65',
-    firstName: 'Wile',
-    middleInitial: 'E.',
-    lastName: 'Coyote',
-    username: 'Central-value-added-908',
-    ssn4: 4321,
-    contactInformation: {
-      emailAddress: 'AnvilAvoider@gmail.com',
-      phoneNumber: '1234567890',
-      homeAddress: {
-        line1: '98765 Runner Rd.',
-        city: 'Desert',
-        state: 'AZ',
-        zip: 12345,
-        country: 'United States'
-      }
-    },
-    driversLicense: {
-      state: 'AZ',
-      number: 'n-123456789',
-      expiration: '2026-01-14T00:00:00.000Z'
-    },
-    accounts: {
-      checking: {
-        accountNumber: '543888430912',
-        routingNumber: '021000021'
-      }
-    },
-    confidence: '99%'
-  },
+  credentialSubject: JSON.stringify(dummyCredentialSubject),
   issuer: 'did:unum:2e05967f-216f-44c4-ae8e-d6f71cd17c5a',
   type: [
     'VerifiableCredential',
@@ -291,90 +298,57 @@ const dummyCredential: Credential = {
   issuanceDate: new Date('2021-02-08T21:18:23.403Z'),
   expirationDate: new Date('2022-02-08T00:00:00.000Z'),
   proof: {
-    created: '2021-02-08T21:18:23.403Z',
+    created: new Date('2021-02-08T21:18:23.403Z'),
     signatureValue: 'iKx1CJMheLAPr3H1T4TDH13h7xTVeunAhTy6ochNjxteHbb7X7J951idkvR8ZCxfvoz85JHwTpiNXFBYUB842UhWcTCS4JEhcf',
-    unsignedValue: '{\'@context\':[\'https://www.w3.org/2018/credentials/v1\'],\'credentialStatus\':{\'id\':\'https://api.dev-unumid.org//credentialStatus/9e90a492-3360-4beb-b3ca-e8eff1ec6e2a\',\'type\':\'CredentialStatus\'},\'credentialSubject\':{\'accounts\':{\'checking\':{\'accountNumber\':\'543888430912\',\'routingNumber\':\'021000021\'}},\'confidence\':\'99%\',\'contactInformation\':{\'emailAddress\':\'AnvilAvoider@gmail.com\',\'homeAddress\':{\'city\':\'Desert\',\'country\':\'United States\',\'line1\':\'98765 Runner Rd.\',\'state\':\'AZ\',\'zip\':12345},\'phoneNumber\':\'1234567890\'},\'driversLicense\':{\'expiration\':\'2026-01-14T00:00:00.000Z\',\'number\':\'n-123456789\',\'state\':\'AZ\'},\'firstName\':\'Wile\',\'id\':\'did:unum:54ca4b1f-fe7e-43ce-a4e4-8ec178f16a65\',\'lastName\':\'Coyote\',\'middleInitial\':\'E.\',\'ssn4\':4321,\'username\':\'Central-value-added-908\'},\'expirationDate\':\'2022-02-08T00:00:00.000Z\',\'id\':\'9e90a492-3360-4beb-b3ca-e8eff1ec6e2a\',\'issuanceDate\':\'2021-02-08T21:18:23.403Z\',\'issuer\':\'did:unum:2e05967f-216f-44c4-ae8e-d6f71cd17c5a\',\'type\':[\'VerifiableCredential\',\'BankIdentityCredential\']}',
+    // unsignedValue: '{\'@context\':[\'https://www.w3.org/2018/credentials/v1\'],\'credentialStatus\':{\'id\':\'https://api.dev-unumid.org//credentialStatus/9e90a492-3360-4beb-b3ca-e8eff1ec6e2a\',\'type\':\'CredentialStatus\'},\'credentialSubject\':{\'accounts\':{\'checking\':{\'accountNumber\':\'543888430912\',\'routingNumber\':\'021000021\'}},\'confidence\':\'99%\',\'contactInformation\':{\'emailAddress\':\'AnvilAvoider@gmail.com\',\'homeAddress\':{\'city\':\'Desert\',\'country\':\'United States\',\'line1\':\'98765 Runner Rd.\',\'state\':\'AZ\',\'zip\':12345},\'phoneNumber\':\'1234567890\'},\'driversLicense\':{\'expiration\':\'2026-01-14T00:00:00.000Z\',\'number\':\'n-123456789\',\'state\':\'AZ\'},\'firstName\':\'Wile\',\'id\':\'did:unum:54ca4b1f-fe7e-43ce-a4e4-8ec178f16a65\',\'lastName\':\'Coyote\',\'middleInitial\':\'E.\',\'ssn4\':4321,\'username\':\'Central-value-added-908\'},\'expirationDate\':\'2022-02-08T00:00:00.000Z\',\'id\':\'9e90a492-3360-4beb-b3ca-e8eff1ec6e2a\',\'issuanceDate\':\'2021-02-08T21:18:23.403Z\',\'issuer\':\'did:unum:2e05967f-216f-44c4-ae8e-d6f71cd17c5a\',\'type\':[\'VerifiableCredential\',\'BankIdentityCredential\']}',
     type: 'secp256r1Signature2020',
     verificationMethod: 'did:unum:2e05967f-216f-44c4-ae8e-d6f71cd17c5a',
     proofPurpose: 'AssertionMethod'
   }
 };
 
-export const dummyPresentationUnsigned: UnsignedPresentation = {
-  // presentation = {
+export const dummyPresentationUnsigned: UnsignedPresentationPb = {
+  context: [
+    'https://www.w3.org/2018/credentials/v1'
+  ],
+  type: [
+    'VerifiablePresentation'
+  ],
+  //   presentationRequestUuid: dummyPresentationRequestUuid,
+  presentationRequestId: dummyPresentationRequestId,
+  verifierDid: dummyVerifierDid,
+  verifiableCredential: [
+    dummyCredential
+  ]
+};
+
+// const presProof: Proof = createProof(dummyPresentationUnsigned, eccPrivateKeyPem, 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8#1e126861-a51b-491f-9206-e2c6b8639fd1', 'pem');
+const dummyPresentationUnsignedBytes = UnsignedPresentationPb.encode(dummyPresentationUnsigned).finish();
+const presProof: ProofPb = createProofPb(dummyPresentationUnsignedBytes, eccPrivateKeyPem, 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8#1e126861-a51b-491f-9206-e2c6b8639fd1', 'pem');
+export const dummyPresentation: PresentationPb = {
+  ...dummyPresentationUnsigned,
+  proof: presProof
+};
+
+export const dummyDeclinedPresentationUnsigned: UnsignedPresentation = {
   '@context': [
     'https://www.w3.org/2018/credentials/v1'
   ],
   type: [
     'VerifiablePresentation'
   ],
-  // presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
-  presentationRequestUuid: dummyPresentationRequestUuid,
+  //   presentationRequestUuid: dummyPresentationRequestUuid,
+  presentationRequestId: dummyPresentationRequestId,
   verifierDid: dummyVerifierDid,
-  verifiableCredentials: [
-    {
-      '@context': [
-        'https://www.w3.org/2018/credentials/v1'
-      ],
-      credentialStatus: {
-        id: 'https://api.dev-unumid.org//credentialStatus/b2acd26a-ab18-4d18-9ad1-3b77f55c564b',
-        type: 'CredentialStatus'
-      },
-      credentialSubject: {
-        accounts: {
-          checking: {
-            accountNumber: '543888430912',
-            routingNumber: '021000021'
-          }
-        },
-        confidence: '99%',
-        contactInformation: {
-          emailAddress: 'AnvilAvoider@gmail.com',
-          homeAddress: {
-            city: 'Desert',
-            country: 'United States',
-            line1: '98765 Runner Rd.',
-            state: 'AZ',
-            zip: 12345
-          },
-          phoneNumber: '1234567890'
-        },
-        driversLicense: {
-          expiration: '2026-01-14T00:00:00.000Z',
-          number: 'n-123456789',
-          state: 'AZ'
-        },
-        firstName: 'Wile',
-        id: 'did:unum:8de4666d-9692-4762-a015-0b8b1f8e08f7',
-        lastName: 'Coyote',
-        middleInitial: 'E.',
-        ssn4: 4321,
-        username: 'state-Montana-211'
-      },
-      expirationDate: new Date('2032-02-11T00:00:00.000Z'),
-      id: 'd90b1bac-4805-410b-b81f-10b96fea8e98',
-      issuanceDate: new Date('2021-02-11T22:23:05.590Z'),
-      issuer: 'did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae',
-      proof: {
-        created: '2021-02-11T22:23:05.590Z',
-        proofPurpose: 'AssertionMethod',
-        signatureValue: 'iKx1CJPw1Yog6jfUhEtzasgP3gC8AKzc9L4GXh3Zox8AYLjymu83P5SPsw4zx2JuVy7PXWYakgbDUdgS5CvH22rNcF2N9tYQ4b',
-        unsignedValue: '{"@context":["https://www.w3.org/2018/credentials/v1"],"credentialStatus":{"id":"https://api.sandbox-unumid.org//credentialStatus/d90b1bac-4805-410b-b81f-10b96fea8e98","type":"CredentialStatus"},"credentialSubject":{"accounts":{"checking":{"accountNumber":"543888430912","routingNumber":"021000021"}},"confidence":"99%","contactInformation":{"emailAddress":"AnvilAvoider@gmail.com","homeAddress":{"city":"Desert","country":"United States","line1":"98765 Runner Rd.","state":"AZ","zip":12345},"phoneNumber":"1234567890"},"driversLicense":{"expiration":"2026-01-14T00:00:00.000Z","number":"n-123456789","state":"AZ"},"firstName":"Wile","id":"did:unum:8de4666d-9692-4762-a015-0b8b1f8e08f7","lastName":"Coyote","middleInitial":"E.","ssn4":4321,"username":"state-Montana-211"},"expirationDate":"2022-02-11T00:00:00.000Z","id":"d90b1bac-4805-410b-b81f-10b96fea8e98","issuanceDate":"2021-02-11T22:23:05.590Z","issuer":"did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae","type":["VerifiableCredential","BankIdentityCredential"]}',
-        type: 'secp256r1Signature2020',
-        verificationMethod: 'did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae'
-      },
-      type: [
-        'VerifiableCredential',
-        'BankIdentityCredential'
-      ]
-    }
+  verifiableCredential: [
+    dummyCredential
   ]
 };
 
-const presProof: Proof = createProof(dummyPresentationUnsigned, eccPrivateKeyPem, 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8#1e126861-a51b-491f-9206-e2c6b8639fd1', 'pem');
-export const dummyPresentation: Presentation = {
+const presDeclinedProof: Proof = createProof(dummyPresentationUnsigned, eccPrivateKeyPem, 'did:unum:3ff2f020-50b0-4f4c-a267-a9f104aedcd8#1e126861-a51b-491f-9206-e2c6b8639fd1', 'pem');
+export const dummyDeclinedPresentation: Presentation = {
   ...dummyPresentationUnsigned,
-  proof: presProof
+  proof: presDeclinedProof
 };
 
 export const dummyPresentationRequestInfo: PresentationRequestDto = dummyPresentationRequestPostDto;
@@ -383,10 +357,13 @@ export const dummyEncryptedPresentationData = encrypt(dummyVerifierDid, rsaPubli
 export const dummyEncryptedPresentation: WithVersion<EncryptedPresentation> = {
   presentationRequestInfo: dummyPresentationRequestInfo,
   encryptedPresentation: dummyEncryptedPresentationData,
-  version: '1.0.0'
+  version: '2.0.0'
 };
-
-export const dummyPresentationWithVerification: PresentationWithVerificationDeprecated = {
+// export const dummyEncryptedPresentationWithoutVersion: EncryptedPresentation = {
+//   presentationRequestInfo: dummyPresentationRequestInfo,
+//   encryptedPresentation: dummyEncryptedPresentationData
+// };
+export const dummyPresentationWithVerification: PresentationWithVerification = {
   presentation: dummyPresentation,
   isVerified: true
 };
@@ -395,18 +372,19 @@ export const dummyPresentationEntityOptions: PresentationEntityOptions = {
   presentationContext: [
     'https://www.w3.org/2018/credentials/v1'
   ],
-  presentationPresentationRequestId: '256e9461-4b65-4941-a6cd-e379276a45b4',
+  presentationPresentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
   presentationProof: {
     created: '2021-02-22T11:36:34.113-0800',
     proofPurpose: 'Presentations',
     signatureValue: '381yXZEx4Z3tfBztX1o6xHbkqRija3svPYfTygUfK6uh8dHjeexaCq7nNvW17Sedd9Y93BJ9HsT17RtsCQ6NfFQomSF4pyx5',
+    unsignedValue: '{"@context":["https://www.w3.org/2018/credentials/v1"],"presentationRequestUuid":"256e9461-4b65-4941-a6cd-e379276a45b4","type":["VerifiablePresentation"],"uuid":"e0d0951a-190c-4dcb-9655-092012b7f265","verifiableCredential":[{"@context":["https://www.w3.org/2018/credentials/v1"],"credentialStatus":{"id":"https://api.sandbox-unumid.org//credentialStatus/d90b1bac-4805-410b-b81f-10b96fea8e98","type":"CredentialStatus"},"credentialSubject":{"accounts":{"checking":{"accountNumber":"543888430912","routingNumber":"021000021"}},"confidence":"99%","contactInformation":{"emailAddress":"AnvilAvoider@gmail.com","homeAddress":{"city":"Desert","country":"United States","line1":"98765 Runner Rd.","state":"AZ","zip":12345},"phoneNumber":"1234567890"},"driversLicense":{"expiration":"2026-01-14T00:00:00.000Z","number":"n-123456789","state":"AZ"},"firstName":"Wile","id":"did:unum:8de4666d-9692-4762-a015-0b8b1f8e08f7","lastName":"Coyote","middleInitial":"E.","ssn4":4321,"username":"state-Montana-211"},"expirationDate":"2022-02-11T00:00:00.000Z","id":"d90b1bac-4805-410b-b81f-10b96fea8e98","issuanceDate":"2021-02-11T22:23:05.590Z","issuer":"did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae","proof":{"created":"2021-02-11T22:23:05.590Z","proofPurpose":"AssertionMethod","signatureValue":"iKx1CJPw1Yog6jfUhEtzasgP3gC8AKzc9L4GXh3Zox8AYLjymu83P5SPsw4zx2JuVy7PXWYakgbDUdgS5CvH22rNcF2N9tYQ4b","type":"secp256r1Signature2020","verificationMethod":"did:unum:de9523d0-b97e-466c-80f4-ae312dd091ae"},"type":["VerifiableCredential","BankIdentityCredential"]}]}',
     type: 'secp256r1Signature2020',
     verificationMethod: 'did:unum:8de4666d-9692-4762-a015-0b8b1f8e08f7#5ab4997a-73c2-498a-b6f1-53a6787cfd22'
   },
   presentationType: [
     'VerifiablePresentation'
   ],
-  verifierDid: dummyVerifierDid,
+  verifierDid: 'did',
   presentationVerifiableCredentials: [
     {
       '@context': [
@@ -478,56 +456,62 @@ export const dummyPresentationResponseDto: DemoPresentationDto = {
   isVerified: dummyPresentationWithVerification.isVerified
 };
 
-export const dummyNoPresentation: NoPresentation = {
-  holder: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
-  presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
-  type: ['NoPresentation', 'NoPresentation'],
-  verifierDid: dummyVerifierDid,
-  proof: {
-    created: '2021-02-22T21:30:03.377Z',
-    signatureValue: 'AN1rKvszAWeMwUW7ghrEG9BfWr7a5n9kWpvqQrW5bQKM9sCS4KDmiwX6PZidMNcYRTvwQ9RLyHELQu33TbcUPVwWEqE23wJHs',
-    unsignedValue: '{"holder":"did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03","presentationRequestUuid":"256e9461-4b65-4941-a6cd-e379276a45b4","type":["NoPresentation","NoPresentation"]}',
-    type: 'secp256r1Signature2020',
-    verificationMethod: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
-    proofPurpose: 'assertionMethod'
-  }
-};
+// export const dummyNoPresentation: NoPresentation = {
+//   holder: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
+//   presentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
+//   type: ['NoPresentation', 'NoPresentation'],
+//   proof: {
+//     created: '2021-02-22T21:30:03.377Z',
+//     signatureValue: 'AN1rKvszAWeMwUW7ghrEG9BfWr7a5n9kWpvqQrW5bQKM9sCS4KDmiwX6PZidMNcYRTvwQ9RLyHELQu33TbcUPVwWEqE23wJHs',
+//     unsignedValue: '{"holder":"did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03","presentationRequestUuid":"256e9461-4b65-4941-a6cd-e379276a45b4","type":["NoPresentation","NoPresentation"]}',
+//     type: 'secp256r1Signature2020',
+//     verificationMethod: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
+//     proofPurpose: 'assertionMethod'
+//   }
+// };
 
-export const dummyNoPresentationWithVerification: NoPresentationWithVerificationDeprecated = {
-  noPresentation: dummyNoPresentation,
-  isVerified: true
-};
+// export const dummyNoPresentationWithVerification: NoPresentationWithVerificationDeprecated = {
+//   noPresentation: dummyNoPresentation,
+//   isVerified: true
+// };
 
-export const dummyNoPresentationEntityOptions: NoPresentationEntityOptions = {
-  npHolder: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
-  npPresentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
-  npType: ['NoPresentation', 'NoPresentation'],
-  npProof: {
-    created: '2021-02-22T21:30:03.377Z',
-    signatureValue: 'AN1rKvszAWeMwUW7ghrEG9BfWr7a5n9kWpvqQrW5bQKM9sCS4KDmiwX6PZidMNcYRTvwQ9RLyHELQu33TbcUPVwWEqE23wJHs',
-    unsignedValue: '{"holder":"did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03","presentationRequestUuid":"256e9461-4b65-4941-a6cd-e379276a45b4","type":["NoPresentation","NoPresentation"]}',
-    type: 'secp256r1Signature2020',
-    verificationMethod: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
-    proofPurpose: 'assertionMethod'
-  },
-  isVerified: true
-};
+// export const dummyNoPresentationEntityOptions: NoPresentationEntityOptions = {
+//   npHolder: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
+//   npPresentationRequestUuid: '256e9461-4b65-4941-a6cd-e379276a45b4',
+//   npType: ['NoPresentation', 'NoPresentation'],
+//   npProof: {
+//     created: '2021-02-22T21:30:03.377Z',
+//     signatureValue: 'AN1rKvszAWeMwUW7ghrEG9BfWr7a5n9kWpvqQrW5bQKM9sCS4KDmiwX6PZidMNcYRTvwQ9RLyHELQu33TbcUPVwWEqE23wJHs',
+//     unsignedValue: '{"holder":"did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03","presentationRequestUuid":"256e9461-4b65-4941-a6cd-e379276a45b4","type":["NoPresentation","NoPresentation"]}',
+//     type: 'secp256r1Signature2020',
+//     verificationMethod: 'did:unum:5b329cd1-4832-448c-8d7d-08f49e3c6c6d#bab80ad2-08ad-44e7-8549-3d10dd6f7c03',
+//     proofPurpose: 'assertionMethod'
+//   },
+//   isVerified: true
+// };
 
-export const dummyNoPresentationEntity = new NoPresentationEntity(dummyNoPresentationEntityOptions);
+// export const dummyNoPresentationEntity = new NoPresentationEntity(dummyNoPresentationEntityOptions);
 
-export const dummyNoPresentationResponseDto: DemoNoPresentationDto = {
-  uuid: dummyNoPresentationEntity.uuid,
-  createdAt: dummyNoPresentationEntity.createdAt,
-  updatedAt: dummyNoPresentationEntity.updatedAt,
-  noPresentation: dummyNoPresentation,
-  isVerified: dummyNoPresentationWithVerification.isVerified
-};
+// export const dummyNoPresentationResponseDto: DemoNoPresentationDto = {
+//   uuid: dummyNoPresentationEntity.uuid,
+//   createdAt: dummyNoPresentationEntity.createdAt,
+//   updatedAt: dummyNoPresentationEntity.updatedAt,
+//   noPresentation: dummyNoPresentation,
+//   isVerified: dummyNoPresentationWithVerification.isVerified
+// };
 
-export const dummyEncryptedNoPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyNoPresentation, 'pem');
-export const dummyEncryptedNoPresentation: WithVersion<EncryptedPresentation> = {
+// export const dummyEncryptedNoPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyNoPresentation, 'pem');
+// export const dummyEncryptedNoPresentation: WithVersion<EncryptedPresentation> = {
+//   presentationRequestInfo: dummyPresentationRequestInfo,
+//   encryptedPresentation: dummyEncryptedNoPresentationData,
+//   version: '1.0.0'
+// };
+
+export const dummyEncryptedDeclinedPresentationData = encrypt(dummyVerifierDid, rsaPublicKeyPem, dummyDeclinedPresentation, 'pem');
+export const dummyEncryptedDeclinedPresentation: WithVersion<EncryptedPresentation> = {
   presentationRequestInfo: dummyPresentationRequestInfo,
-  encryptedPresentation: dummyEncryptedNoPresentationData,
-  version: '1.0.0'
+  encryptedPresentation: dummyEncryptedDeclinedPresentationData,
+  version: '2.0.0'
 };
 
 export const dummyVerifierRegistrationResponse = {
@@ -547,8 +531,7 @@ export const dummyVerifierRegistrationResponse = {
       signing: {
         privateKey: dummyVerifierEntityOptions.signingPrivateKey
       }
-    },
-    versionInfo: [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
+    }
   }
 };
 
@@ -557,10 +540,10 @@ export const dummyPresentationVerificationResponse = {
   body: { isVerified: true }
 };
 
-export const dummyNoPresentationVerificationResponse = {
-  authToken: dummyAuthToken,
-  body: { isVerified: true }
-};
+// export const dummyNoPresentationVerificationResponse = {
+//   authToken: dummyAuthToken,
+//   body: { isVerified: true }
+// };
 
 const mockDecryptedPresentation: DecryptedPresentation = {
   type: 'VerifiablePresentation',
@@ -568,20 +551,31 @@ const mockDecryptedPresentation: DecryptedPresentation = {
   isVerified: true
 };
 
-const mockDecryptedNoPresentation: DecryptedPresentation = {
-  type: 'NoPresentation',
-  presentation: dummyNoPresentation,
+const mockDecryptedDeclinedPresentation: DecryptedPresentation = {
+  type: 'DeclinedPresentation',
+  presentation: dummyDeclinedPresentation,
   isVerified: true
 };
+
+// const mockDecryptedNoPresentation: DecryptedPresentation = {
+//   type: 'NoPresentation',
+//   presentation: dummyNoPresentation,
+//   isVerified: true
+// };
 
 export const mockVerifiedEncryptedPresentation: UnumDto<DecryptedPresentation> = {
   authToken: dummyAuthToken,
   body: mockDecryptedPresentation
 };
 
-export const mockVerifiedEncryptedNoPresentation: UnumDto<DecryptedPresentation> = {
+// export const mockVerifiedEncryptedNoPresentation: UnumDto<DecryptedPresentation> = {
+//   authToken: dummyAuthToken,
+//   body: mockDecryptedNoPresentation
+// };
+
+export const mockVerifiedEncryptedDeclinedPresentation: UnumDto<DecryptedPresentation> = {
   authToken: dummyAuthToken,
-  body: mockDecryptedNoPresentation
+  body: mockDecryptedDeclinedPresentation
 };
 
 const mockDecryptedInvalidPresentation: DecryptedPresentation = {
@@ -590,9 +584,9 @@ const mockDecryptedInvalidPresentation: DecryptedPresentation = {
   isVerified: false
 };
 
-const mockDecryptedInvalidNoPresentation: DecryptedPresentation = {
-  type: 'NoPresentation',
-  presentation: dummyNoPresentation,
+const mockDecryptedInvalidDeclinedPresentation: DecryptedPresentation = {
+  type: 'DeclinedPresentation',
+  presentation: dummyDeclinedPresentation,
   isVerified: false
 };
 
@@ -601,7 +595,7 @@ export const mockNotVerifiedEncryptedPresentation: UnumDto<DecryptedPresentation
   body: mockDecryptedInvalidPresentation
 };
 
-export const mockNotVerifiedEncryptedNoPresentation: UnumDto<DecryptedPresentation> = {
+export const mockNotVerifiedEncryptedDeclinedPresentation: UnumDto<DecryptedPresentation> = {
   authToken: dummyAuthToken,
-  body: mockDecryptedInvalidNoPresentation
+  body: mockDecryptedInvalidDeclinedPresentation
 };

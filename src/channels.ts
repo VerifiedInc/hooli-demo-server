@@ -5,10 +5,10 @@ import logger from './logger';
 
 // Creating the presentation websocket publisher for the client to conusme.
 export const presentationPublisher = (app: Application) => async (data: any, hook: HookContext) => {
-  const prUuid = data.presentation?.presentationRequestUuid || data.noPresentation?.presentationRequestUuid;
-  logger.debug(`in presentation websocket publisher grabbing session metadata via presentation request ${prUuid}`);
+  const prId = data.presentation?.presentationRequestId || data.noPresentation?.presentationRequestId;
+  logger.debug(`in presentation websocket publisher grabbing session metadata via presentation request ${prId}`);
 
-  const presentationRequest = await app.service('presentationRequestData').get(null, { where: { prUuid } });
+  const presentationRequest = await app.service('presentationRequestData').get(null, { where: { prId } });
   if (presentationRequest && presentationRequest.prMetadata && presentationRequest.prMetadata.fields) {
     // tells the socket handler which persisted connection to response to
     return app.channel(presentationRequest.prMetadata.fields.sessionUuid);
