@@ -50,7 +50,7 @@ describe('PresentationService', () => {
 
   describe('create', () => {
     beforeEach(() => {
-      mockDataService.findOne.mockResolvedValueOnce(dummyPresentationRequestEntity);
+      mockDataService.get.mockResolvedValueOnce(dummyPresentationRequestEntity);
       mockDataService.getDefaultVerifierEntity.mockResolvedValueOnce(dummyVerifierEntity);
       mockDataService.patch.mockResolvedValueOnce(dummyVerifierEntity);
     });
