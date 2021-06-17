@@ -73,9 +73,14 @@ export class PresentationServiceV3 {
   ): Promise<VerificationResponse> {
     try {
       const presentationRequestService = this.app.service('presentationRequestData');
-      const presentationRequest: PresentationRequestEntity = await presentationRequestService.findOne({ prUuid: data.presentationRequestInfo.presentationRequest.uuid });
       const presentationWebsocketService = this.app.service('presentationWebsocket');
 
+      /**
+       * Note: actually not necessary anymore due to the full presentation request object being sent with the EncryptedPresentation type.
+       * However leaving here as an example in case additional contextual info needs to be saved on the request object
+       * one should query on the id field, not uuid, thanks to UnumId under the hood handling of potential request versioning.
+       */
+      const presentationRequest = await presentationRequestService.get(null, { where: { prId: data.presentationRequestInfo.presentationRequest.id } });
       if (!presentationRequest) {
         throw new NotFound('PresentationRequest not found.');
       }
