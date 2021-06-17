@@ -1,21 +1,10 @@
-import createService, { Service as MikroOrmService } from 'feathers-mikro-orm';
-import { Params, ServiceAddons } from '@feathersjs/feathers';
+import { Service as MikroOrmService } from 'feathers-mikro-orm';
+import { ServiceAddons } from '@feathersjs/feathers';
 
 import { Application } from '../../declarations';
 import { PresentationRequestEntity } from '../../entities/PresentationRequest';
-import logger from '../../logger';
 
-export class PresentationRequestDataService extends MikroOrmService<PresentationRequestEntity> {
-  async findOne (params?: Params): Promise<PresentationRequestEntity> {
-    try {
-      const [result] = await this.find(params);
-      return result;
-    } catch (e) {
-      logger.error('PresentationDataService.findOne caught an error thrown by this.findOne', e);
-      throw e;
-    }
-  }
-}
+export class PresentationRequestDataService extends MikroOrmService<PresentationRequestEntity> {}
 
 declare module '../../declarations' {
   interface ServiceTypes {
