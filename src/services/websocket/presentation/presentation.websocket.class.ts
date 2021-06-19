@@ -62,7 +62,7 @@ export class PresentationService {
     }
 
     async create (
-      data: WithVersion<PresentationEntity> | Presentation | PresentationPb,
+      data: WithVersion<PresentationEntity> | NoPresentationEntity | Presentation | PresentationPb,
       params?: Params
     ): Promise<DemoPresentationDto | DemoPresentationDtoDeprecated> {
       const response: DemoPresentationDto | DemoPresentationDtoDeprecated = makeDemoPresentationDtoFromEntity(data as WithVersion<PresentationEntity>);
