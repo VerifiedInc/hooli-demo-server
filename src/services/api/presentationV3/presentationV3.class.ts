@@ -1,13 +1,11 @@
 import { Params } from '@feathersjs/feathers';
-import { EncryptedPresentation, Presentation, PresentationPb, PresentationReceiptInfo, Proof, VerificationResponse, WithVersion, Credential } from '@unumid/types';
-import { Presentation as PresentationDeprecated } from '@unumid/types-deprecated-v1';
+import { EncryptedPresentation, PresentationPb, PresentationReceiptInfo, Proof, VerificationResponse, WithVersion, Credential } from '@unumid/types';
 import { Service as MikroOrmService } from 'feathers-mikro-orm';
 
 import { Application } from '../../../declarations';
 import { PresentationEntity, PresentationEntityOptions } from '../../../entities/Presentation';
 import logger from '../../../logger';
 import { BadRequest, NotFound } from '@feathersjs/errors';
-import { PresentationRequestEntity } from '../../../entities/PresentationRequest';
 import { CryptoError } from '@unumid/library-crypto';
 import { CredentialInfo, DecryptedPresentation, extractCredentialInfo, verifyPresentation } from '@unumid/server-sdk';
 
