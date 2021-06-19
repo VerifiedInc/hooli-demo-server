@@ -10,6 +10,7 @@ export const presentationPublisher = (app: Application) => async (data: any, hoo
 
   const presentationRequest = await app.service('presentationRequestData').get(null, { where: { prId } });
   if (presentationRequest && presentationRequest.prMetadata && presentationRequest.prMetadata.fields) {
+    logger.debug(`got the sessionUuid to notify the client ${presentationRequest.prMetadata.fields.sessionUuid}`);
     // tells the socket handler which persisted connection to response to
     return app.channel(presentationRequest.prMetadata.fields.sessionUuid);
   }
