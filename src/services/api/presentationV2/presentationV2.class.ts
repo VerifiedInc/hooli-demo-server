@@ -119,6 +119,8 @@ export class PresentationServiceV2 {
         }
       } else {
         logger.info('Presentation was declined, not storing.');
+        // Pass the decrypted Presentation to the websocket service for the web client's consumption
+        presentationWebsocketService.create(result.presentation);
       }
 
       // extract the relevant credential info to send back to UnumID SaaS for analytics.
