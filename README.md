@@ -1,6 +1,11 @@
+# Hooli Demo Server
+> This project acts as a backend for a fictional customer, Hooli, which uses Unum ID for receiving and verifying credentials for instant onboarding.
+
+Information about the Unum ID demo ecosystem can be found in our [documentation](https://docs.unum.id/#demos).
+
 # feathers-mikro-orm-starter
 
-> A starter app using [FeathersJS](https://feathersjs.com) and [MikroORM](https://mikro-orm.io) with some additional configuration set up
+A starter app using [FeathersJS](https://feathersjs.com) and [MikroORM](https://mikro-orm.io) with some additional configuration set up
 
 ## What the starter app includes
 ### Feathers
