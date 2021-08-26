@@ -100,7 +100,7 @@ jobs:
             docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
             echo Pushing the Docker image...
             docker push << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
-            docker push << parameters.reg >>/<< parameters.repo >>:dev-latest
+            docker push << parameters.reg >>/<< parameters.repo >>:test-latest
           name: Update container image
       - slack/notify:
           event: fail
