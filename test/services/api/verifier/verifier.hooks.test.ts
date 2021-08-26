@@ -59,22 +59,23 @@ describe('verifier service hooks', () => {
       }
     });
 
-    it('throws a BadRequest if name is missing', () => {
-      const ctx = {
-        data: {
-          customerUuid: v4(),
-          apiKey: 'dummy api key',
-          url: 'https://verifier.unum.id/presentation'
-        }
-      } as HookContext;
+    // No longer true, name is handled by the api key
+    // it('throws a BadRequest if name is missing', () => {
+    //   const ctx = {
+    //     data: {
+    //       customerUuid: v4(),
+    //       apiKey: 'dummy api key',
+    //       url: 'https://verifier.unum.id/presentation'
+    //     }
+    //   } as HookContext;
 
-      try {
-        validateVerifierCreateOptions(ctx);
-        fail();
-      } catch (e) {
-        expect(e).toEqual(new BadRequest('name is required.'));
-      }
-    });
+    //   try {
+    //     validateVerifierCreateOptions(ctx);
+    //     fail();
+    //   } catch (e) {
+    //     expect(e).toEqual(new BadRequest('name is required.'));
+    //   }
+    // });
 
     it('throws a BadRequest if url is missing', () => {
       const ctx = {
@@ -149,7 +150,7 @@ describe('verifier service hooks', () => {
       await registerVerifierHook(ctx);
 
       expect(registerVerifier).toBeCalledWith(
-        'test verifier',
+        // 'test verifier',
         customerUuid,
         'https://verifier-api.demo.unum.id/presentation',
         'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',

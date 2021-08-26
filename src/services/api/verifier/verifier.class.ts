@@ -95,7 +95,8 @@ const makeVerifierResponseDtoFromEntity = (entity: VerifierEntity): VerifierResp
       customerUuid: verifierCustomerUuid,
       url: verifierUrl,
       isAuthorized: verifierIsAuthorized,
-      versionInfo: verifierVersionInfo
+      versionInfo: verifierVersionInfo,
+      apiKey
     }
   };
 };
