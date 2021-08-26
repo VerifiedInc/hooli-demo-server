@@ -77,6 +77,36 @@ jobs:
           mentions: '@devops-team'
           template: basic_fail_1
 
+  build-and-push-image-test:
+    executor: aws-cli/default
+    parameters:
+      reg:
+        type: string
+        default: "248606629437.dkr.ecr.us-west-2.amazonaws.com"
+      repo:
+        type: string
+    steps:
+      - checkout
+      - aws-cli/setup
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          command: |
+            echo Logging in to Amazon ECR...
+            $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+            echo Building the Docker image...
+            DOCKER_BUILDKIT=1 docker build --ssh github="$HOME/.ssh/id_rsa" -t ${CIRCLE_SHA1} .
+            docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:test-latest
+            docker tag ${CIRCLE_SHA1} << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
+            echo Pushing the Docker image...
+            docker push << parameters.reg >>/<< parameters.repo >>:"${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}"
+            docker push << parameters.reg >>/<< parameters.repo >>:dev-latest
+          name: Update container image
+      - slack/notify:
+          event: fail
+          mentions: '@devops-team'
+          template: basic_fail_1
+
   build-and-push-image-sandbox:
     executor: aws-cli/default
     parameters:
@@ -242,7 +272,6 @@ workflows:
             branches:
               only:
                 - main
-                - test-circleci
 
       - build-and-push-image:
           requires:
@@ -255,7 +284,6 @@ workflows:
             branches:
               only:
                 - main
-                - test-circleci
 
       - deploy-image:
           requires:
@@ -269,5 +297,36 @@ workflows:
             branches:
               only:
                 - main
+
+  build-and-deploy-test:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only:
                 - test-circleci
 
+      - build-and-push-image-test:
+          requires:
+            - test
+          context: 
+            - AWS-Dev
+            - Slack-Context
+          repo: hooli-demo-server-new
+          filters:
+            branches:
+              only:
+                - test-circleci
+
+      - deploy-image:
+          requires:
+            - build-and-push-image
+          context: 
+            - AWS-Dev
+            - Slack-Context
+          repo: hooli-demo-server-new
+          deployment: hooli-demo-server-new
+          filters:
+            branches:
+              only:
+                - test-circleci
