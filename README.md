@@ -1,5 +1,5 @@
 # Hooli Demo Server
-> This project acts as a backend for a fictional customer, Hooli, which uses Unum ID its [Verifiy with X](https://www.unum.id/solutions/verify-with-x) capabilities - receiving and verifying credentials for instant onboarding.
+> This project acts as a backend for a fictional customer, Hooli, which uses Unum ID its [Sharified Identity](https://www.unum.id/solutions/sharified-identity) capabilities - receiving and verifying credentials for instant onboarding.
 
 Information about the Unum ID demo ecosystem can be found in our [documentation](https://docs.unum.id/#demos).
 
