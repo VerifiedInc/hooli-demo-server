@@ -22,7 +22,7 @@ export interface PresentationRequestEntityOptions extends BaseEntityOptions {
   prHolderAppUuid: string;
   prVerifierInfo: Pick<Verifier, 'did' | 'name' | 'url'>;
   prIssuerInfo: Record<string, Pick<Issuer, 'did' | 'name'>>;
-  prHolderAppInfo: Pick<HolderApp, 'name' | 'uriScheme' | 'deeplinkButtonImg'>
+  prHolderAppInfo: Pick<HolderApp, 'name' | 'deeplinkButtonImg'>
   prDeeplink: string;
   prQrCode: string;
 }
@@ -67,7 +67,7 @@ export class PresentationRequestEntity extends BaseEntity {
   prIssuerInfo: Record<string, Pick<Issuer, 'did' | 'name'>>;
 
   @Property()
-  prHolderAppInfo: Pick<HolderApp, 'name' | 'uriScheme' | 'deeplinkButtonImg'>;
+  prHolderAppInfo: Pick<HolderApp, 'name' | 'deeplinkButtonImg'>;
 
   @Property({ columnType: 'text' })
   prDeeplink: string;

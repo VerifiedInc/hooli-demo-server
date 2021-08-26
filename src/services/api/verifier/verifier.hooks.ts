@@ -31,9 +31,10 @@ export const validateVerifierCreateOptions: Hook<VerifierCreateOptions> = (ctx) 
     throw new BadRequest('customerUuid is required.');
   }
 
-  if (!name) {
-    throw new BadRequest('name is required.');
-  }
+  // no longer needed to enforce because the api key name dictates the entity's name.
+  // if (!name) {
+  //   throw new BadRequest('name is required.');
+  // }
 
   if (!url) {
     throw new BadRequest('url is required.');
@@ -60,18 +61,19 @@ export const registerVerifierHook: Hook<RegisterVerifierData> = async (ctx) => {
     throw new GeneralError('Hook context has not been validated. Did you forget to run the validateVerifierCreateOptions hook before this one?');
   }
 
-  const { apiKey, customerUuid, name, url, versionInfo } = ctx.data;
+  const { apiKey, customerUuid, url, versionInfo } = ctx.data;
 
   let response;
 
   try {
-    response = await registerVerifier(name, customerUuid, url, apiKey, versionInfo);
+    response = await registerVerifier(customerUuid, url, apiKey, versionInfo);
   } catch (e) {
     logger.error('registerVerifierHook caught an error thrown by the server sdk', e);
     throw new GeneralError('Error registering verifier.');
   }
 
   const { body, authToken } = response;
+  const name = body.name;
 
   const {
     uuid,
@@ -94,7 +96,8 @@ export const registerVerifierHook: Hook<RegisterVerifierData> = async (ctx) => {
     name,
     customerUuid,
     url,
-    versionInfo
+    versionInfo,
+    apiKey
   };
 
   const newData: VerifierRequestDto = {
