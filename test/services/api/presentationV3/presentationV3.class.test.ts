@@ -88,7 +88,8 @@ describe('PresentationServiceV3', () => {
         verifierDid: dummyVerifierEntity.verifierDid,
         holderApp: dummyPresentationRequestEntity.prHolderAppUuid,
         issuers: dummyPresentationRequestEntity.prIssuerInfo,
-        presentationRequestUuid: dummyEncryptedPresentation.presentationRequestInfo.presentationRequest.uuid
+        presentationRequestUuid: dummyEncryptedPresentation.presentationRequestInfo.presentationRequest.uuid,
+        presentationRequestId: dummyEncryptedPresentation.presentationRequestInfo.presentationRequest.id
       };
 
       const expectedVerificationResponse: VerificationResponse = {
@@ -112,7 +113,8 @@ describe('PresentationServiceV3', () => {
         verifierDid: dummyVerifierEntity.verifierDid,
         holderApp: dummyPresentationRequestInfo.presentationRequest.holderAppUuid,
         issuers: undefined,
-        presentationRequestUuid: dummyPresentationRequestInfo.presentationRequest.uuid
+        presentationRequestUuid: dummyPresentationRequestInfo.presentationRequest.uuid,
+        presentationRequestId: dummyEncryptedPresentation.presentationRequestInfo.presentationRequest.id
       };
 
       const expectedVerificationResponse: VerificationResponse = {
