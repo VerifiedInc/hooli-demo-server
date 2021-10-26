@@ -133,6 +133,7 @@ export class PresentationServiceV3 {
         verifierDid: verifier.verifierDid,
         holderApp: data.presentationRequestInfo.presentationRequest.holderAppUuid,
         presentationRequestUuid: data.presentationRequestInfo.presentationRequest.uuid,
+        presentationRequestId: data.presentationRequestInfo.presentationRequest.id,
         issuers: result.type === 'VerifiablePresentation' ? presentationRequest.prIssuerInfo : undefined
       };
 
