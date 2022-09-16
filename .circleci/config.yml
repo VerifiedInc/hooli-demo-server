@@ -146,7 +146,7 @@ jobs:
         type: string
       deployment:
         type: string
-      image:
+      image-tag:
         type: dev-latest
 
     docker: # Referencing the python image here, see https://github.com/CircleCI-Public/aws-eks-orb/issues/52#issuecomment-1006838213
@@ -159,7 +159,7 @@ jobs:
           cluster-name: << parameters.cluster-name >>
       - run:
           command: |
-            kubectl set image deployment/<< parameters.deployment >> << parameters.deployment >>=${AWS_ECR_URL}/<< parameters.repo >>:<< parameters.image >>
+            kubectl set image deployment/<< parameters.deployment >> << parameters.deployment >>=${AWS_ECR_URL}/<< parameters.repo >>:<< parameters.image-tag >>
 
             # Check deployment rollout status every 10 seconds (max 10 minutes) until complete.
             # ref: https://www.jeffgeerling.com/blog/2018/updating-kubernetes-deployment-and-waiting-it-roll-out-shell-script
@@ -330,7 +330,7 @@ workflows:
             - Slack-Context
           repo: hooli-demo-server-new
           deployment: hooli-demo-server-new
-          image: test-latest
+          image-tag: test-latest
           filters:
             branches:
               only:
