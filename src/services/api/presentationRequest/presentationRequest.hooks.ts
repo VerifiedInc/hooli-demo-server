@@ -78,15 +78,6 @@ export const sendRequestHook: Hook<SendRequestHookData> = async (ctx) => {
       throw e;
     }
   }
-
-  // TODO remove this necessary workaround this until we phase out needing to supporting verifier.url attribute in the PresentationRequestPostDto type (no longer needed thanks to presentation always being sent to directly to saas)
-  ctx.data = {
-    ...response.body,
-    verifier: {
-      ...response.body.verifier,
-      url: response.body.verifier.url as string
-    }
-  };
 };
 
 export const hooks = {
