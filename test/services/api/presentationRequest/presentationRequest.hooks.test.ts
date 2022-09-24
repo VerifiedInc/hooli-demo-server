@@ -163,23 +163,5 @@ describe('presentationRequest service hooks', () => {
         expect(e).toEqual(new GeneralError('Error sending request.'));
       }
     });
-
-    it('updates the hook context data', async () => {
-      const credentialRequests = [{
-        type: 'TestCredential',
-        issuers: [dummyIssuerDid]
-      }];
-
-      const ctx = {
-        data: { credentialRequests },
-        params: { isValidated: true },
-        app: { service: () => ({ getDefaultVerifierEntity: () => dummyVerifierEntity, patch: jest.fn() }) }
-      } as unknown as HookContext;
-
-      (sendRequest as jest.Mock).mockResolvedValue({ body: dummyPresentationRequestPostDto });
-      await sendRequestHook(ctx);
-
-      expect(ctx.data).toEqual(dummyPresentationRequestPostDto);
-    });
   });
 });

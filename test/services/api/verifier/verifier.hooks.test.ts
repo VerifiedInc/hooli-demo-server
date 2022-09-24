@@ -151,9 +151,8 @@ describe('verifier service hooks', () => {
 
       expect(registerVerifier).toBeCalledWith(
         // 'test verifier',
-        customerUuid,
-        'https://verifier-api.demo.unum.id/presentation',
         'VivPO5o37AXK8pcbMh7Kzm5XH02YiCVw1KQ60ozJX3k=',
+        'https://verifier-api.demo.unum.id/presentation',
         [{ target: { version: '2.0.0' }, sdkVersion: '2.0.0' }]
       );
     });
