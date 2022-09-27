@@ -192,7 +192,7 @@ jobs:
         type: string
       namespace:
         type: string
-        default: "demos"
+        default: "default"
 
     docker: # Referencing the python image here, see https://github.com/CircleCI-Public/aws-eks-orb/issues/52#issuecomment-1006838213
     - image: cimg/python:3.10
