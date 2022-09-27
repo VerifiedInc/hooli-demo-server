@@ -78,6 +78,10 @@ export const sendRequestHook: Hook<SendRequestHookData> = async (ctx) => {
       throw e;
     }
   }
+
+  ctx.data = {
+    ...response.body as any
+  };
 };
 
 export const hooks = {
