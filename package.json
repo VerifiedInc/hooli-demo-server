@@ -71,7 +71,7 @@
     "dotenv": "^8.2.0",
     "feathers-mikro-orm": "git+ssh://git@github.com/UnumID/feathers-mikro-orm.git#v0.2.4",
     "helmet": "^4.2.0",
-    "semver": "^7.3.5",
+    "semver": "^7.5.2",
     "serve-favicon": "^2.5.0",
     "uuid": "^8.3.2",
     "winston": "^3.0.0",
