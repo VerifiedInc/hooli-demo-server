@@ -50,7 +50,7 @@
     "@feathersjs/errors": "^4.5.9",
     "@feathersjs/express": "^4.5.9",
     "@feathersjs/feathers": "^4.5.9",
-    "@feathersjs/socketio": "^4.5.9",
+    "@feathersjs/socketio": "^4.5.18",
     "@feathersjs/transport-commons": "^4.5.11",
     "@mikro-orm/cli": "^4.4.2",
     "@mikro-orm/core": "^4.4.2",
